@@ -4,6 +4,7 @@
         "memorymap.h": "c",
         "gpio.h": "c",
         "gpio_common_all.h": "c",
-        "vector.h": "c"
+        "vector.h": "c",
+        "common.h": "c"
     }
 }

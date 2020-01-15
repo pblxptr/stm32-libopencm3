@@ -24,6 +24,8 @@ set(CMAKE_CXX_FLAGS "${COMPILER_CXX_FLAGS} ${COMPILER_FLAGS} ${ARCH_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS} ${ARCH_FLAGS}")
 
 include_directories(${LIBOPENCM3}/include)
+include_directories(${PORT_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src/drivers/include)
 
 add_custom_target(libopencm3 COMMAND make run
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/libopencm3
@@ -33,10 +35,10 @@ add_custom_target(libopencm3 COMMAND make run
 set(COMMON_SRC 
   ${LIBOPENCM3}/lib/cm3/nvic.c
   ${LIBOPENCM3}/lib/cm3/vector.c
+  ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
 )
 
 set(PORT_SRC 
-    ${STARTUP_SRC}
     ${RCC_SRC}
     ${GPIO_SRC}
 )
