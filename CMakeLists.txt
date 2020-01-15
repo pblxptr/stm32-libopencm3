@@ -15,7 +15,7 @@ include(${PORT_DIR}/port.cmake)
 
 set(COMPILER_CXX_FLAGS "-fno-use-cxa-atexit")
 set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -O0 -DNDEBUG -Werror")
-set(LINKER_FLAGS "-nostartfiles -specs=nano.specs -specs=nosys.specs --static -ggdb3 -Wl,--gc-sections -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -Wl,-Map=output.map -T ${LD_SCRIPT} -L ${BOILERPLATE}/lib/libopencm3/lib")
+set(LINKER_FLAGS "-nostartfiles -specs=nano.specs -specs=nosys.specs --static -ggdb3 -Wl,--gc-sections -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -Wl,-Map=output.map -T ${LD_SCRIPT}")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -38,6 +38,7 @@ set(COMMON_SRC
 set(PORT_SRC 
     ${STARTUP_SRC}
     ${RCC_SRC}
+    ${GPIO_SRC}
 )
 
 set(EXE_NAME STM32Run)
