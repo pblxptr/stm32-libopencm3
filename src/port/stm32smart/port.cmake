@@ -12,6 +12,10 @@ set(GPIO_SRC
   /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/gpio_common_all.c
 )
 
+set(ISR_SRC
+  ${PORT_DIR}/src/isr.c
+)
+
 set(ARCH_FLAGS "-mcpu=cortex-m3 -mthumb -mfpu=vfp")
 
 add_compile_definitions(STM32F1)

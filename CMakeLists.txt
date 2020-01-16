@@ -24,9 +24,10 @@ set(CMAKE_CXX_FLAGS "${COMPILER_CXX_FLAGS} ${COMPILER_FLAGS} ${ARCH_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS} ${ARCH_FLAGS}")
 
 include_directories(${LIBOPENCM3}/include)
-include_directories(${PORT_DIR})
+include_directories(${PORT_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/drivers/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/types/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/sys/include)
 
 add_custom_target(libopencm3 COMMAND make run
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/libopencm3
@@ -36,12 +37,15 @@ add_custom_target(libopencm3 COMMAND make run
 set(COMMON_SRC 
   ${LIBOPENCM3}/lib/cm3/nvic.c
   ${LIBOPENCM3}/lib/cm3/vector.c
+  ${LIBOPENCM3}/lib/cm3/systick.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
+  ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
 )
 
 set(PORT_SRC 
     ${RCC_SRC}
     ${GPIO_SRC}
+    ${ISR_SRC}
 )
 
 set(EXE_NAME STM32Run)

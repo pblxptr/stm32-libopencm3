@@ -7,6 +7,21 @@
         "vector.h": "c",
         "common.h": "c",
         "i2c.h": "c",
-        "i2c_common_v1.h": "c"
+        "i2c_common_v1.h": "c",
+        "systick.h": "c",
+        "timer.h": "c",
+        "list.h": "c",
+        "target.h": "c",
+        "sys_timer.h": "c",
+        "array": "c",
+        "chrono": "c",
+        "functional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "ratio": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "stddef.h": "c"
     }
 }
