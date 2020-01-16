@@ -5,6 +5,8 @@
         "gpio.h": "c",
         "gpio_common_all.h": "c",
         "vector.h": "c",
-        "common.h": "c"
+        "common.h": "c",
+        "i2c.h": "c",
+        "i2c_common_v1.h": "c"
     }
 }

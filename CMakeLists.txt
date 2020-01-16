@@ -26,6 +26,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS} ${ARCH_FLAGS}")
 include_directories(${LIBOPENCM3}/include)
 include_directories(${PORT_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/src/drivers/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/types/include)
 
 add_custom_target(libopencm3 COMMAND make run
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/libopencm3
