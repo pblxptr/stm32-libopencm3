@@ -12,6 +12,11 @@ set(GPIO_SRC
   /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/gpio_common_all.c
 )
 
+set(I2C_SRC
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/f1/i2c.c
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/i2c_common_v1.c
+)
+
 set(ISR_SRC
   ${PORT_DIR}/src/isr.c
 )

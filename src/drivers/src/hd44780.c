@@ -1,186 +1,164 @@
 #include <stdbool.h>
 #include <hd44780.h>
 #include <libopencm3/stm32/i2c.h>
+#include <delay.h>
 
-enum backlight backlight_status = BACKLIGHT_ON;
-bool use_busy_flag = false;
-
-static uint8_t lcd_payload = 0x00;
+//TODO: Refactor needed -> a lot of unnescesery function calls.
 
 //PRIVATE FUNCTIONS DECLARATIONS AND INLINE IMPLEMENTATIONS 
 static bool __is_busy();
-static void __set_payload_data(uint8_t data);
-static void __lcd_write_instruction(uint8_t command);
+static void __set_payload_data(hd44780_handle_t handle, uint8_t data);
+static void __hd44780_write_instruction(hd44780_handle_t handle, uint8_t command);
+static void __hd44780_write_char(hd44780_handle_t handle, char c);
 
 inline static void __send_payload(hd44780_handle_t handle)
 {
+	uint32_t reg32 __attribute__((unused));
+
     i2c_send_start(handle->i2cx);
-    i2c_send_7bit_address(handle->i2cx, handle->dev_address, I2C_READ);
-    i2c_send_data(handle->i2cx, lcd_payload);
+
+	while (!((I2C_SR1(handle->i2cx) & I2C_SR1_SB)
+		& (I2C_SR2(handle->i2cx) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
+
+    i2c_send_7bit_address(handle->i2cx, handle->dev_address, I2C_WRITE);
+	while (!(I2C_SR1(handle->i2cx) & I2C_SR1_ADDR));
+
+	reg32 = I2C_SR2(handle->i2cx);
+
+    i2c_send_data(handle->i2cx, handle->_payload);
+
+	while (!(I2C_SR1(handle->i2cx) & (I2C_SR1_BTF | I2C_SR1_TxE)));
+
     i2c_send_stop(handle->i2cx);
 }
 
-inline static void __set_payload_e_hi()
+inline static void __set_payload_e_hi(hd44780_handle_t handle)
 {
-	lcd_payload |= (1 << E);
+	handle->_payload |= (1 << E);
 }
 
-inline static void __set_payload_e_lo()
+inline static void __set_payload_e_lo(hd44780_handle_t handle)
 {
-	lcd_payload &= (~(1 << E));
+	handle->_payload &= (~(1 << E));
 }
 
-inline static void __set_payload_rs_hi()
+inline static void __set_payload_rs_hi(hd44780_handle_t handle)
 {
-	lcd_payload |= (1 << RS);
+	handle->_payload |= (1 << RS);
 }
 
-inline static void __set_payload_rs_lo()
+inline static void __set_payload_rs_lo(hd44780_handle_t handle)
 {
-	lcd_payload &= (~(1 << RS));
+	handle->_payload &= (~(1 << RS));
 }
 
-inline static void __set_payload_rw_hi()
+inline static void __set_payload_rw_hi(hd44780_handle_t handle)
 {
-	lcd_payload |= (1 << RW);
+	handle->_payload |= (1 << RW);
 }
 
-inline static void __set_payload_rw_lo()
+inline static void __set_payload_rw_lo(hd44780_handle_t handle)
 {
-	lcd_payload &= (~(1 << RW));
+	handle->_payload &= (~(1 << RW));
 }
 
+//Not implemented
 bool __is_busy()
 {
-	// // It should works but in need to be checked. 
-	// // At this moment the busy flag read is disabled 
-	// /* Set RW */
-	// __set_payload_data(0);
 
-	// __set_payload_rw_hi();
-	// __send_payload();
-	// /* From now RW is 1 */
-
-	// // /* Read first nibble */
-	// __set_payload_e_hi();
-	// __send_payload();
-
-	//   // uint8_t x1 = twi_read_byte(SLA, NO_ACK); // first nibble
-
-	// __set_payload_e_lo();
-	// __send_payload();
-	// /* Read first nibble done */
-
-	// /* Read second nibble */
-	// __set_payload_e_hi();
-	// __send_payload();
-
-	// // uint8_t x2 = twi_read_byte(SLA, NO_ACK); //second nibble
-
-	// __set_payload_e_lo();
-	// __send_payload();
-	// /* Read second nibble done */
-
-	// __set_payload_rw_lo();
-	// __send_payload();
-
-	// /* From now RW is 0 */
-
- 
-
-	// return false; // flag shoud be checked
 }
 
-static void __set_payload_data(uint8_t data)
+static void __set_payload_data(hd44780_handle_t handle, uint8_t data)
 {
 	//Reset only data bits
-	lcd_payload &= ~(1 << D4);
-	lcd_payload &= ~(1 << D5);
-	lcd_payload &= ~(1 << D6);
-	lcd_payload &= ~(1 << D7);
+	handle->_payload &= ~(1 << D4);
+	handle->_payload &= ~(1 << D5);
+	handle->_payload &= ~(1 << D6);
+	handle->_payload &= ~(1 << D7);
 
-    if (data & 0x01) lcd_payload |= (1 << D4);
-    if (data & 0x02) lcd_payload |= (1 << D5);
-    if (data & 0x04) lcd_payload |= (1 << D6);
-    if (data & 0x08) lcd_payload |= (1 << D7);
-    if (backlight_status == BACKLIGHT_ON) {
-		lcd_payload |= (1 << BACKLIGHT);
+    if (data & 0x01) handle->_payload |= (1 << D4);
+    if (data & 0x02) handle->_payload |= (1 << D5);
+    if (data & 0x04) handle->_payload |= (1 << D6);
+    if (data & 0x08) handle->_payload |= (1 << D7);
+    if (handle->_backlight_status == BACKLIGHT_ON) {
+		handle->_payload |= (1 << BACKLIGHT);
 	}
 }
 
-inline static void __clear_all()
+inline static void __clear_all(hd44780_handle_t handle)
 {
-	__set_payload_data(0);
-	__set_payload_e_lo();
-	__set_payload_rs_lo();
-	__set_payload_rw_lo();
+	__set_payload_data(handle, 0);
+	__set_payload_e_lo(handle);
+	__set_payload_rs_lo(handle);
+	__set_payload_rw_lo(handle);
 }
 
-void lcd_init(hd44780_handle_t handle)
+void hd44780_init(hd44780_handle_t handle)
 {
 	//Initialization start
-	_delay_ms(100); //wait
+	delay_ms(100); //wait
 
 	for (int i = 0; i < 3; i++) {
-		__set_payload_data(0x03);
+		__set_payload_data(handle, 0x03);
 
-		__set_payload_e_hi(); // E -> 1
-		__send_payload();
+		__set_payload_e_hi(handle); // E -> 1
+		__send_payload(handle);
 
-		__set_payload_e_lo(); // E -> 0
-		__send_payload();
+		__set_payload_e_lo(handle); // E -> 0
+		__send_payload(handle);
 
-		// _delay_ms(10);
+		delay_ms(10);
 	}
 
 	//Set data interface to 4 bits
-	__set_payload_data(0x02);
+	__set_payload_data(handle, 0x02);
 
-	__set_payload_e_hi();
-	__send_payload();
+	__set_payload_e_hi(handle);
+	__send_payload(handle);
 
-	__set_payload_e_lo();
-	__send_payload();
+	__set_payload_e_lo(handle);
+	__send_payload(handle);
 
 	//4 bits interface enabled. Now we can use high level functions like lcd_write_command, etc...
 
 	//Function set
-	__lcd_write_instruction(LCD_FUNCTION_SET | LCD_4_BITS | LCD_2_LINES | LCD_FONT_5_8);
+	__hd44780_write_instruction(handle, LCD_FUNCTION_SET | LCD_4_BITS | LCD_2_LINES | LCD_FONT_5_8);
 
 	//Display off
-	__lcd_write_instruction(LCD_ON_OFF | LCD_DISPLAY_OFF | LCD_CURSOR_OFF | LCD_CURSOR_NO_BLINK);
+	__hd44780_write_instruction(handle, LCD_ON_OFF | LCD_DISPLAY_OFF | LCD_CURSOR_OFF | LCD_CURSOR_NO_BLINK);
 
 	//Display clear
-	__lcd_write_instruction(LCD_CLEAR);
+	__hd44780_write_instruction(handle, LCD_CLEAR);
 
 	//Entry mode
-	__lcd_write_instruction(LCD_ENTRY_MODE | LCD_EM_CURSOR_INCREMENT);
+	__hd44780_write_instruction(handle, LCD_ENTRY_MODE | LCD_EM_CURSOR_INCREMENT);
 
 	//Initialization done.
 
 	//////////---------------------////////////////////
-	__lcd_write_instruction(LCD_ON_OFF | LCD_DISPLAY_ON | LCD_CURSOR_ON | LCD_CURSOR_BLINK);
+	hd44780_backlight(handle, BACKLIGHT_ON);
+	__hd44780_write_instruction(handle, LCD_ON_OFF | LCD_DISPLAY_ON | LCD_CURSOR_ON | LCD_CURSOR_BLINK);
 }
 
-void lcd_backlight(enum backlight status) 
+void hd44780_backlight(hd44780_handle_t handle, enum backlight status) 
 {
-	backlight_status = status;
+	handle->_backlight_status = status;
 }
 
-void lcd_display_text(char* text)
+void hd44780_display_text(hd44780_handle_t handle, char* text)
 {
 	while(*(text)) {
-		lcd_write_char(*text);
+		__hd44780_write_char(handle, *text);
 		++text;
 	}
 }
 
-void lcd_set_options(uint8_t options)
+void hd44780_set_options(hd44780_handle_t handle, uint8_t options)
 {
-	__lcd_write_instruction(LCD_ON_OFF | options);
+	__hd44780_write_instruction(handle, LCD_ON_OFF | options);
 }
 
-void lcd_set_position(uint8_t line_nr, uint8_t position)
+void hd44780_set_position(hd44780_handle_t handle, uint8_t line_nr, uint8_t position)
 {
 	uint8_t data = 0;
 
@@ -192,50 +170,50 @@ void lcd_set_position(uint8_t line_nr, uint8_t position)
 	data += position;
 	data |= (1 << D7);
 
-	__lcd_write_instruction(data);
+	__hd44780_write_instruction(handle, data);
 }
 
-void lcd_clear()
+void hd44780_clear(hd44780_handle_t handle)
 {
-	__lcd_write_instruction(LCD_CLEAR);
+	__hd44780_write_instruction(handle, LCD_CLEAR);
 }
 
-void lcd_home()
+void hd44780_home(hd44780_handle_t handle)
 {
-	__lcd_write_instruction(LCD_HOME);
+	__hd44780_write_instruction(handle, LCD_HOME);
 }
 
 //PIVATE FUNCTIONS IMPLEMENTATION
-void __lcd_write_instruction(uint8_t command)
+void __hd44780_write_instruction(hd44780_handle_t handle, uint8_t command)
 {
 	//Send first nibble
-	__set_payload_data((command & 0xF0) >> 4);
-	__set_payload_e_hi();
-	__send_payload();
-	__set_payload_e_lo();
-	__send_payload();
+	__set_payload_data(handle, (command & 0xF0) >> 4);
+	__set_payload_e_hi(handle);
+	__send_payload(handle);
+	__set_payload_e_lo(handle);
+	__send_payload(handle);
 
 	//Send second nibble
-	__set_payload_data(command & 0x0F);
-	__set_payload_e_hi();
-	__send_payload();
-	__set_payload_e_lo();
-	__send_payload();
+	__set_payload_data(handle, command & 0x0F);
+	__set_payload_e_hi(handle);
+	__send_payload(handle);
+	__set_payload_e_lo(handle);
+	__send_payload(handle);
 
-	__clear_all();
-	__send_payload();
+	__clear_all(handle);
+	__send_payload(handle);
 
-		if (use_busy_flag) {
+		if (handle->busy_flag) {
 		while (__is_busy());
 	} else {
-		// _delay_ms(10);
+		delay_ms(10);
 	}
 
 }
 
-static void lcd_write_char(uint8_t c)
+void __hd44780_write_char(hd44780_handle_t handle, char c)
 {
-	__set_payload_rs_hi();
-	__lcd_write_instruction(c);
-	__set_payload_rs_lo();
+	__set_payload_rs_hi(handle);
+	__hd44780_write_instruction(handle, c);
+	__set_payload_rs_lo(handle);
 }

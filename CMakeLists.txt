@@ -28,6 +28,7 @@ include_directories(${PORT_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/drivers/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/types/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/sys/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/utils/include)
 
 add_custom_target(libopencm3 COMMAND make run
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/libopencm3
@@ -39,13 +40,16 @@ set(COMMON_SRC
   ${LIBOPENCM3}/lib/cm3/vector.c
   ${LIBOPENCM3}/lib/cm3/systick.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
+  ${PROJECT_SOURCE_DIR}/src/drivers/src/hd44780.c
   ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
+  ${PROJECT_SOURCE_DIR}/src/utils/src/delay.c
 )
 
 set(PORT_SRC 
     ${RCC_SRC}
     ${GPIO_SRC}
     ${ISR_SRC}
+    ${I2C_SRC}
 )
 
 set(EXE_NAME STM32Run)

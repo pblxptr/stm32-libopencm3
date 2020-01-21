@@ -15,32 +15,30 @@
 #define MODE_4_BITS 0
 #define MODE_8_BITS 1
 
-#define LCD_ENTRY_MODE                 0x04
+#define LCD_ENTRY_MODE                 	 0x04
 	#define LCD_EM_CURSOR_INCREMENT      0x02
 	#define LCD_EM_CURSOR_DECREMENT      0x00
 	#define LCD_EM_SHIFT_DISPLAY_DISPLAY 0x00
 	#define LCD_EM_SHIFT_CURSOR          0x01
 
-#define LCD_FUNCTION_SET 			 0x20
+#define LCD_FUNCTION_SET 			     0x20
 	#define LCD_8_BITS 					 0x10
 	#define LCD_4_BITS 					 0x00
 	#define LCD_1_LINE 					 0x00
 	#define LCD_2_LINES 				 0x08
 	#define LCD_FONT_5_8 				 0x00
-	#define LCD_FONT_5_10 			 0x04
+	#define LCD_FONT_5_10 			     0x04
 
-#define LCD_ON_OFF 						 0x08
-	#define LCD_DISPLAY_ON 			 0x04
-	#define LCD_DISPLAY_OFF 		 0x00
-	#define LCD_CURSOR_ON 			 0x02
-	#define LCD_CURSOR_OFF 			 0x00
-	#define LCD_CURSOR_BLINK 		 0x01
-	#define LCD_CURSOR_NO_BLINK  0x00
+#define LCD_ON_OFF 					     0x08
+	#define LCD_DISPLAY_ON 			     0x04
+	#define LCD_DISPLAY_OFF 		     0x00
+	#define LCD_CURSOR_ON 			     0x02
+	#define LCD_CURSOR_OFF 			     0x00
+	#define LCD_CURSOR_BLINK 		     0x01
+	#define LCD_CURSOR_NO_BLINK          0x00
 
 #define LCD_CLEAR 0x01
 #define LCD_HOME  0x02
-
-#define SLA 0x27
 
 /* Lines to select, the value represents addresses of the lines begining */
 #define LINE_1 0x00
@@ -52,6 +50,8 @@ typedef struct _hd44780_t {
   uint32_t i2cx;
   uint8_t dev_address;
   bool busy_flag;
+  bool _backlight_status;
+  uint8_t _payload; 
 } hd44780_t;
 
 typedef hd44780_t* hd44780_handle_t;

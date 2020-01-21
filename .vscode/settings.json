@@ -22,6 +22,12 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "exti.h": "c",
+        "exti_common_all.h": "c",
+        "led.h": "c",
+        "delay.h": "c",
+        "hd44780.h": "c",
+        "stdbool.h": "c"
     }
 }
