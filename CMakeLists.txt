@@ -41,6 +41,7 @@ set(COMMON_SRC
   ${LIBOPENCM3}/lib/cm3/systick.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/hd44780.c
+  ${PROJECT_SOURCE_DIR}/src/drivers/src/ssd1306.c
   ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
   ${PROJECT_SOURCE_DIR}/src/utils/src/delay.c
 )
@@ -50,6 +51,7 @@ set(PORT_SRC
     ${GPIO_SRC}
     ${ISR_SRC}
     ${I2C_SRC}
+    ${EXTI_SRC}
 )
 
 set(EXE_NAME STM32Run)

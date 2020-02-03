@@ -28,6 +28,7 @@
         "led.h": "c",
         "delay.h": "c",
         "hd44780.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "exti_common_v1.h": "c"
     }
 }

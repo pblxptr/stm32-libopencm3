@@ -8,6 +8,9 @@
 #include <delay.h>
 #include <hd44780.h>
 #include <libopencm3/stm32/i2c.h>
+#include <ssd1306.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/exti.h>
 
 static led_t fault_led;
 static led_t operational_led;
@@ -28,6 +31,8 @@ static void rcc_setup()
 
 static void i2c_setup()
 {
+
+  //Required by hd44780 
   rcc_periph_clock_enable(RCC_I2C2);
   rcc_periph_clock_enable(RCC_AFIO);
 
@@ -43,16 +48,48 @@ static void i2c_setup()
 
 static void systick_run()
 {
+  //Required by timers 
   systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
   systick_set_reload(8999);
   systick_interrupt_enable();
   systick_counter_enable();
 }
 
+static void encoder_setup()
+{
+  //AFIO must be set 
+  nvic_enable_irq(ENCODER_BUTTON_ISR_LINE);
+  nvic_enable_irq(ENCODER_CLOCKWISE_DIRECTION_ISR_LINE);
+  nvic_enable_irq(ENCODER_COUNTER_CLOCKWISE_DIRECTION_ISR_LINE);
+
+  gpio_set_mode(ENCODER_BUTTON_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+    ENCODER_BUTTON_PIN
+  );
+  gpio_set_mode(ENCODER_CLOCKWISE_DIRECTION_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+    ENCODER_CLOCKWISE_DIRECTION_PIN
+  );
+  gpio_set_mode(ENCODER_COUNTER_CLOCKWISE_DIRECTION_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+    ENCODER_COUNTER_CLOCKWISE_DIRECTION_PIN
+  );
+
+  exti_select_source(ENCODER_BUTTON_EXTI, ENCODER_BUTTON_PORT);
+  exti_set_trigger(ENCODER_BUTTON_EXTI, EXTI_TRIGGER_BOTH);
+  exti_enable_request(ENCODER_BUTTON_EXTI);
+
+  exti_select_source(ENCODER_CLOCKWISE_DIRECTION_EXTI, ENCODER_CLOCKWISE_DIRECTION_PORT);
+  exti_set_trigger(ENCODER_CLOCKWISE_DIRECTION_EXTI, EXTI_TRIGGER_BOTH);
+  exti_enable_request(ENCODER_CLOCKWISE_DIRECTION_EXTI);
+
+  exti_select_source(ENCODER_COUNTER_CLOCKWISE_DIRECTION_EXTI, ENCODER_COUNTER_CLOCKWISE_DIRECTION_PORT);
+  exti_set_trigger(ENCODER_COUNTER_CLOCKWISE_DIRECTION_EXTI, EXTI_TRIGGER_BOTH);
+  exti_enable_request(ENCODER_COUNTER_CLOCKWISE_DIRECTION_EXTI);
+}
+
 int main()
 {
   rcc_setup();
   i2c_setup();
+  encoder_setup();
 
   fault_led.gpiox = FAULT_LED_PORT;
   fault_led.pin_mask = FAULT_LED_PIN;
@@ -74,8 +111,9 @@ int main()
   lcd.dev_address = 0x27;
   lcd.i2cx = I2C2;
 
-  hd44780_init(&lcd);
-  hd44780_display_text(&lcd, "Test");
+  // hd44780_init(&lcd);
+  // hd44780_display_text(&lcd, "Test");
+
 
   while(1)
   {
