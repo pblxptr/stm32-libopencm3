@@ -11,6 +11,7 @@
 #include <ssd1306.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/exti.h>
+#include <hal/exti.h>
 
 static led_t fault_led;
 static led_t operational_led;
@@ -85,11 +86,30 @@ static void encoder_setup()
   exti_enable_request(ENCODER_COUNTER_CLOCKWISE_DIRECTION_EXTI);
 }
 
+void hal_init_gpio()
+{
+  gpio_set_mode(ENCODER_BUTTON_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+    ENCODER_BUTTON_PIN
+  );
+}
+
+void handle()
+{
+
+}
+
 int main()
 {
   rcc_setup();
   i2c_setup();
-  encoder_setup();
+  // encoder_setup();
+
+  hal_init_gpio();
+
+  hal_exti_config_t cfg;
+  HAL_EXTI_INIT_STRUCT(&cfg, EXTI4, GPIOA, handle);
+  // hal_exti_configure(&cfg);
+
 
   fault_led.gpiox = FAULT_LED_PORT;
   fault_led.pin_mask = FAULT_LED_PIN;
@@ -106,13 +126,6 @@ int main()
 
   systick_run();
 
-  hd44780_t lcd;
-  lcd.busy_flag = false;
-  lcd.dev_address = 0x27;
-  lcd.i2cx = I2C2;
-
-  // hd44780_init(&lcd);
-  // hd44780_display_text(&lcd, "Test");
 
 
   while(1)
