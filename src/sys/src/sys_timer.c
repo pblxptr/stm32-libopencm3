@@ -42,7 +42,7 @@ void sys_tick_isr_handler()
     return; 
   }
 
-  timer_t* timer = container_of(iter, timer_t, _list);
+  sys_timer_t* timer = container_of(iter, sys_timer_t, _list);
 
   if (++timer_unsynch_ticks >= timer->fire_on) {
     list_remove(iter);
@@ -73,7 +73,7 @@ void timer_add(timer_handle_t thandle, sys_delay_t delay,
 
   if (!list_end(&timers_list, iter)) {
     do {
-      timer_t* tnext = container_of(iter, timer_t, _list);
+      sys_timer_t* tnext = container_of(iter, sys_timer_t, _list);
 
       if (thandle->fire_on < tnext->fire_on) {
         break;
@@ -92,9 +92,9 @@ void update_timers()
   list_t* iter = list_begin(&timers_list);
 
   while (!list_end(&timers_list, iter)) {
-    timer_t* tm = NULL;
+    sys_timer_t* tm = NULL;
     
-    tm = container_of(iter, timer_t, _list);
+    tm = container_of(iter, sys_timer_t, _list);
     tm->fire_on -= timer_unsynch_ticks;
     
     iter = list_next(iter);

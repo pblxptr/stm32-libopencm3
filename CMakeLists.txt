@@ -42,6 +42,8 @@ set(COMMON_SRC
   ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/hd44780.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/ssd1306.c
+  ${PROJECT_SOURCE_DIR}/src/drivers/src/rotary_encoder.c
+  ${PROJECT_SOURCE_DIR}/src/drivers/src/hal/exti.c
   ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
   ${PROJECT_SOURCE_DIR}/src/utils/src/delay.c
 )
@@ -56,7 +58,11 @@ set(PORT_SRC
 
 set(EXE_NAME STM32Run)
 
-add_executable(${EXE_NAME} ${PROJECT_SOURCE_DIR}/src/app/main.c ${PORT_SRC} ${COMMON_SRC})
+add_executable(${EXE_NAME} 
+  ${PROJECT_SOURCE_DIR}/src/app/main.c 
+  ${PROJECT_SOURCE_DIR}/src/app/exti_hal_adapter.c 
+  ${PORT_SRC} 
+  ${COMMON_SRC})
 
 
 add_custom_command(TARGET ${EXE_NAME} POST_BUILD
