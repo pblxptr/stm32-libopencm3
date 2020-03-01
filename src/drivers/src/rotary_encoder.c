@@ -31,22 +31,20 @@ void rotary_encoder_set_callback(rotarty_encoder_event_t event, rotary_encoder_c
     callbacks[event] = cb;
 }
 
-#define CC_PIN GPIO8
-#define C_PIN  GPIO11
-
 static uint8_t state = 0x00;
 static int32_t counter = 0;
 
 void rotary_encoder_handle_event(uint32_t pin, rotarty_encoder_event_t event)
 {
-  uint16_t pins = gpio_get(GPIOB, CC_PIN | C_PIN);
+  uint16_t cpin  = gpio_get(ROTARY_ENCODER_C_PORT, ROTARY_ENCODER_C_PIN);
+  uint16_t ccpin = gpio_get(ROTARY_ENCODER_CC_PORT, ROTARY_ENCODER_CC_PIN);
   uint8_t pin_state = 0;
 
-  if (pins & CC_PIN) {
+  if (ccpin & ROTARY_ENCODER_CC_PIN) {
     pin_state |= (1 << 1);
   }
 
-  if (pins & C_PIN) {
+  if (cpin & ROTARY_ENCODER_C_PIN) {
     pin_state |= 1;
   }
 
