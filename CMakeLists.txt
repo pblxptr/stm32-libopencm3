@@ -39,13 +39,13 @@ set(COMMON_SRC
   ${LIBOPENCM3}/lib/cm3/nvic.c
   ${LIBOPENCM3}/lib/cm3/vector.c
   ${LIBOPENCM3}/lib/cm3/systick.c
+  ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
+  ${PROJECT_SOURCE_DIR}/src/utils/src/delay.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/hd44780.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/ssd1306.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/rotary_encoder.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/hal/exti.c
-  ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
-  ${PROJECT_SOURCE_DIR}/src/utils/src/delay.c
 )
 
 set(PORT_SRC 
@@ -64,6 +64,7 @@ add_executable(${EXE_NAME}
   ${PORT_SRC} 
   ${COMMON_SRC})
 
+target_link_libraries(${EXE_NAME})
 
 add_custom_command(TARGET ${EXE_NAME} POST_BUILD
   COMMAND arm-none-eabi-objcopy -O ihex ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXE_NAME} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXE_NAME}.hex

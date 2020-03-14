@@ -2,6 +2,36 @@
 
 #include <stdint.h>
 
+// EXAMPLE OF USE // 
+/* 
+  - Setup RCC 
+  - Setup I2C:   
+  rcc_periph_clock_enable(RCC_I2C1);
+  rcc_periph_clock_enable(RCC_AFIO);
+
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN, GPIO_I2C2_SCL | GPIO_I2C2_SDA);
+
+  i2c_peripheral_disable(I2C2);
+  i2c_set_clock_frequency(I2C2, I2C_CR2_FREQ_36MHZ);
+  i2c_set_ccr(I2C2, 0x1e);
+  i2c_set_trise(I2C2, 0x0b);
+  i2c_set_own_7bit_slave_address(I2C2, 0x32);
+  i2c_peripheral_enable(I2C2);
+
+
+  - Init hd44780: 
+  hd44780_t lcd;
+  lcd.i2cx = I2C1;
+  lcd.dev_address = 0x27;
+  lcd.busy_flag = false;
+  hd44780_init(&lcd);
+
+  - Use: 
+  hd44780_clear(&lcd);
+  hd44780_display_text(&lcd, x);
+*/
+
+
 #define RS        0
 #define RW        1
 #define E         2

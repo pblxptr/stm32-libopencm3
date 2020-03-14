@@ -3,6 +3,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <delay.h>
 #include <sys_timer.h>
+#include <hal/exti.h>
 
 // TODO: add callbacks
 // TODO: remove unused code 
@@ -24,6 +25,18 @@ static uint8_t ttable[6][4] = {
 
 void rotary_encoder_init() 
 {
+  hal_exti_config_t cfg;
+  HAL_EXTI_INIT_STRUCT(&cfg, ENCODER_BUTTON_PORT, ENCODER_BUTTON_PIN, 
+    ENCODER_BUTTON_ISR_LINE);
+  hal_exti_configure(&cfg); //configure push button for encoder
+
+  HAL_EXTI_INIT_STRUCT(&cfg, ENCODER_CLOCKWISE_DIRECTION_PORT, ENCODER_CLOCKWISE_DIRECTION_PIN, 
+    ENCODER_CLOCKWISE_DIRECTION_ISR_LINE);
+  hal_exti_configure(&cfg); //configure clocwise direction for encoder 
+
+  HAL_EXTI_INIT_STRUCT(&cfg, ENCODER_COUNTER_CLOCKWISE_DIRECTION_PORT, ENCODER_COUNTER_CLOCKWISE_DIRECTION_PIN, 
+    ENCODER_COUNTER_CLOCKWISE_DIRECTION_ISR_LINE);
+  hal_exti_configure(&cfg); //configure counter clocwise direction for encoder
 }
 
 void rotary_encoder_set_callback(rotarty_encoder_event_t event, rotary_encoder_cb_t* cb)
@@ -36,15 +49,15 @@ static int32_t counter = 0;
 
 void rotary_encoder_handle_event(uint32_t pin, rotarty_encoder_event_t event)
 {
-  uint16_t cpin  = gpio_get(ROTARY_ENCODER_C_PORT, ROTARY_ENCODER_C_PIN);
-  uint16_t ccpin = gpio_get(ROTARY_ENCODER_CC_PORT, ROTARY_ENCODER_CC_PIN);
+  uint16_t cpin  = gpio_get(ENCODER_CLOCKWISE_DIRECTION_PORT, ENCODER_CLOCKWISE_DIRECTION_PIN);
+  uint16_t ccpin = gpio_get(ENCODER_COUNTER_CLOCKWISE_DIRECTION_PORT, ENCODER_COUNTER_CLOCKWISE_DIRECTION_PIN);
   uint8_t pin_state = 0;
 
-  if (ccpin & ROTARY_ENCODER_CC_PIN) {
+  if (ccpin & ENCODER_COUNTER_CLOCKWISE_DIRECTION_PIN) {
     pin_state |= (1 << 1);
   }
 
-  if (cpin & ROTARY_ENCODER_C_PIN) {
+  if (cpin & ENCODER_CLOCKWISE_DIRECTION_PIN) {
     pin_state |= 1;
   }
 
