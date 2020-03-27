@@ -32,6 +32,14 @@
         "exti_common_v1.h": "c",
         "rotary_encoder.h": "c",
         "nvic.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "gps.h": "c",
+        "st_usbfs.h": "c",
+        "ext_ctrl.h": "c",
+        "messages.h": "c",
+        "ec_bus.h": "c",
+        "stdint.h": "c",
+        "cstdint": "c",
+        "cdc.h": "c"
     }
 }

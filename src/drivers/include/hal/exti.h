@@ -24,4 +24,4 @@ typedef struct _hal_exti_setup_t_ {
 
 void hal_exti_configure(hal_exti_config_t* cfg);
 void hal_exti_complete_request(uint32_t exti);
-void hal_exti_isr(uint32_t pin); // implement in app code 
+void hal_exti_isr(uint32_t pin); // need to be implemented in app/exit_hal_adapter

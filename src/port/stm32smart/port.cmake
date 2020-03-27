@@ -25,6 +25,20 @@ set(EXTI_SRC
   /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/exti_common_all.c
 )
 
+set(USART_SRC
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/usart_common_all.c
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/usart_common_f124.c
+)
+
+set(USB_SRC
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/st_usbfs_v1.c
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/stm32/common/st_usbfs_core.c
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/usb/usb.c
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/usb/usb_control.c
+  /home/pp/STM32/STM32_Template/lib/libopencm3/lib/usb/usb_standard.c
+)
+
+
 set(ARCH_FLAGS "-mcpu=cortex-m3 -mthumb -mfpu=vfp")
 
 add_compile_definitions(STM32F1)

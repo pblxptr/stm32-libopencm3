@@ -29,6 +29,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/drivers/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/types/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/sys/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/utils/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/app/include)
 
 add_custom_target(libopencm3 COMMAND make run
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/libopencm3
@@ -41,10 +42,11 @@ set(COMMON_SRC
   ${LIBOPENCM3}/lib/cm3/systick.c
   ${PROJECT_SOURCE_DIR}/src/sys/src/sys_timer.c
   ${PROJECT_SOURCE_DIR}/src/utils/src/delay.c
+  ${PROJECT_SOURCE_DIR}/src/types/src/ring_buffer.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/led.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/hd44780.c
-  ${PROJECT_SOURCE_DIR}/src/drivers/src/ssd1306.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/rotary_encoder.c
+  ${PROJECT_SOURCE_DIR}/src/drivers/src/gps.c
   ${PROJECT_SOURCE_DIR}/src/drivers/src/hal/exti.c
 )
 
@@ -54,17 +56,22 @@ set(PORT_SRC
     ${ISR_SRC}
     ${I2C_SRC}
     ${EXTI_SRC}
+    ${USART_SRC}
+    ${USB_SRC}
 )
 
 set(EXE_NAME STM32Run)
 
 add_executable(${EXE_NAME} 
-  ${PROJECT_SOURCE_DIR}/src/app/main.c 
-  ${PROJECT_SOURCE_DIR}/src/app/exti_hal_adapter.c 
+  ${PROJECT_SOURCE_DIR}/src/app/src/main.c 
+  ${PROJECT_SOURCE_DIR}/src/app/src/exti_hal_adapter.c 
+  ${PROJECT_SOURCE_DIR}/src/app/src/usart_hal_adapter.c 
+  ${PROJECT_SOURCE_DIR}/src/app/src/ec_bus.c 
+  ${PROJECT_SOURCE_DIR}/src/app/src/ec_bus_transport.c 
   ${PORT_SRC} 
   ${COMMON_SRC})
 
-target_link_libraries(${EXE_NAME})
+target_link_libraries(${EXE_NAME} m)
 
 add_custom_command(TARGET ${EXE_NAME} POST_BUILD
   COMMAND arm-none-eabi-objcopy -O ihex ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXE_NAME} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${EXE_NAME}.hex

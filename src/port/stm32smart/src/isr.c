@@ -3,9 +3,15 @@
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/gpio.h>
 #include <delay.h>
+#include <libopencm3/stm32/usart.h>
+#include <gps.h>
 
 extern void sys_tick_isr_handler();
 extern void hal_exti_isr(uint32_t);
+extern void hal_usart_isr(uint32_t);
+
+//gps 
+extern void gps_handle_isr(uint16_t);
 
 void sys_tick_handler(void)
 {
@@ -36,4 +42,10 @@ void exti0_isr(void)
 void exti4_isr(void)
 {
   hal_exti_isr(ENCODER_BUTTON_PIN);
+}
+
+//gps
+void usart1_isr(void)
+{
+  hal_usart_isr(USART1);
 }
