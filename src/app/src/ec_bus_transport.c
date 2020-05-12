@@ -3,8 +3,10 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/nvic.h>
 #include <stddef.h>
 #include <assert.h>
+
 
 static const struct usb_device_descriptor dev = {
 	.bLength = USB_DT_DEVICE_SIZE,
@@ -186,10 +188,18 @@ void ec_bus_transport_init(const ec_bus_transport_init_t* init_config)
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11 | GPIO12);
   	rcc_periph_clock_enable(RCC_AFIO);
 
-
     usbd_dev = usbd_init(&st_usbfs_v1_usb_driver, &dev, &config, usb_strings,
         3, usbd_control_buffer, sizeof(usbd_control_buffer));
-	usbd_register_set_config_callback(usbd_dev, __cdcacm_set_config);
+	usbd_register_set_config_callback(usbd_dev, __cdcacm_set_config);	
+ }
+
+void ec_bus_transport_send()
+{
+	assert(send_buffer != NULL);
+
+    size_t len = usbd_ep_write_packet(usbd_dev, 0x82, send_buffer, send_buffer_len);
+
+	int x = 10;
 }
 
 void ec_bus_transport_poll()

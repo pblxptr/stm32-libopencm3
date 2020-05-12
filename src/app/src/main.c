@@ -7,9 +7,14 @@
 #include <libopencm3/cm3/nvic.h>
 #include <gps.h>
 #include <ec_bus.h>
+#include <msg_gps_buffer.h>
+#include <libopencm3/stm32/f1/timer.h>
+#include <sys_timer.h>
 
 led_t status_led;
 gps_t gps;
+
+// TODO: Verify double-endabled rcc for the same peripheral
 
 static void rcc_setup()
 {
@@ -30,30 +35,52 @@ static void systick_run()
   systick_counter_enable();
 }
 
+#define OS_FLCK (72000000)
+#define TIMER_FREQ (20000)
+
+uint16_t duty_value_from_percentage(uint8_t percnt)
+{
+  return (percnt * (OS_FLCK / TIMER_FREQ)) / 100;
+}
+
+static sys_timer_t t1;
+static uint16_t duty_percentage = 85;
+
+void handle_timer(void* context)
+{
+  if (++duty_percentage <= 100)
+  {
+    timer_set_oc_value(TIM1, TIM_OC1, duty_value_from_percentage(duty_percentage));
+
+    // sys_timer_create(&t1, 200, handle_timer, NULL);
+  }
+}
+
 int main()
 {
+  uint32_t start_duty_percentage = 10;
+
   rcc_setup();
   sys_timers_init();
   systick_run();
 
-  status_led.active_on = STATUS_LED_ACTIVE_ON;
-  status_led.gpiox = FAULT_LED_PORT;
-  status_led.pin_mask = FAULT_LED_PIN;
-  led_init(&status_led);
+  gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, 
+    GPIO8 | GPIO9);
 
-  // gps_init(&gps);
+  rcc_periph_clock_enable(RCC_TIM1);
+  
+  timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
+  timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
+  timer_enable_oc_output(TIM1, TIM_OC1);
+  timer_enable_break_main_output(TIM1);
+  timer_set_period(TIM1, 3600);
+  timer_set_oc_value(TIM1, TIM_OC1, duty_value_from_percentage(100));
+  timer_enable_counter(TIM1); 
 
-  led_set_state(&status_led, LED_STATE_ON);
+  sys_timer_create(&t1, 1000, handle_timer, NULL);
 
-  delay_ms(2000);
-
-  led_set_state(&status_led, LED_STATE_OFF);
-  ec_bus_init();
-
-AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
   while(1)
   {
-    // gps_task(&gps); 
-    ec_bus_task();
+
   }
 }

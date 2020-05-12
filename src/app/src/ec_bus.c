@@ -1,13 +1,15 @@
 #include <ec_bus.h>
 #include <ec_bus_transport.h>
-#include <messages.h>
 #include <target.h>
 #include <led.h>
 #include <delay.h>
+#include <msg_serializer.h>
+#include <list.h>
 
-static msg_handler* handlers[TOTAL_MESSAGES];
+static msg_number_t* handlers[10];
 static uint8_t receive_data_buffer[64];
 static uint8_t send_data_buffer[64];
+
 
 // PRIVATE FUNCTION DECLARATIONS //
 void __received_callback();
@@ -28,19 +30,36 @@ void ec_bus_init()
     ec_bus_transport_init(&bus_transport_init);
 }
 
-void ec_bus_register_msg_handler(uint32_t msg_number, const msg_handler* handler)
+void ec_bus_register_on_connected_handler(on_connected_handler_t* const handler)
 {
-    if (msg_number == DEFAULT_MSG) 
+
+}
+
+void ec_bus_register_on_disconnected_handler(on_disconnected_handler_t* const handler)
+{
+
+}
+
+void ec_bus_register_msg_handler(msg_number_t msg_number, msg_handler_t* const handler)
+{
+
+    // handlers[msg_number] = handler;
+}
+
+void ec_bus_send_msg(msg_number_t msg_number, void* const msg)
+{
+    char x = 'A';
+
+    for (size_t i = 0; i < sizeof(send_data_buffer); i++)
     {
-        return;
+        send_data_buffer[i] = x;
+        x = (++x) % 26; 
     }
 
-    if (msg_number >= TOTAL_MESSAGES)
-    {
-        return;
-    }
+    send_data_buffer[63] = '\r';
 
-    handlers[msg_number] = handler;
+    //Send 
+    ec_bus_transport_send();
 }
 
 void ec_bus_task()
