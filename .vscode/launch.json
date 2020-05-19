@@ -7,11 +7,12 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceRoot}",
-            "executable": "./bin/STM32Run",
+            "executable": "./build/bin/stm32-template",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "jlink",
-            "device": "STM32F103C8"
+            "device": "STM32F103C8",
+            "showDevDebugOutput" : true
         }
     ]
 }

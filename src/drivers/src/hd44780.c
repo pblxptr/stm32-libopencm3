@@ -69,7 +69,7 @@ inline static void __set_payload_rw_lo(hd44780_handle_t handle)
 //Not implemented
 bool __is_busy()
 {
-
+	return false;
 }
 
 static void __set_payload_data(hd44780_handle_t handle, uint8_t data)

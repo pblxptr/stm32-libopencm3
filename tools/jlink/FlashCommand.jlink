@@ -1,3 +1,0 @@
-loadFile bin/STM32Run.hex
-r
-exit

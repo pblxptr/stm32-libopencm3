@@ -9,7 +9,7 @@ void led_init(led_handle_t led)
 
 void led_set_state(led_handle_t led, led_state_t state)
 { 
-  if (led->active_on == state) {
+  if ((int)led->active_on == (int)state) {
     gpio_set(led->gpiox, led->pin_mask);
   } else {
     gpio_clear(led->gpiox, led->pin_mask);

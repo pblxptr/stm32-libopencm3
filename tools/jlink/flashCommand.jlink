@@ -1,0 +1,3 @@
+loadFile /home/pp/STM32/STM32_Template/build/bin/stm32-template.hex
+r
+exit

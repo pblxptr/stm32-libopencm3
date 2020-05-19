@@ -1,5 +1,5 @@
 
-set(APP_BIN     ${CMAKE_PROJECT_NAME}_app)
+set(APP_BIN     ${CMAKE_PROJECT_NAME})
 set(UTILS_BIN   ${CMAKE_PROJECT_NAME}_utils)
 set(DRIVERS_BIN ${CMAKE_PROJECT_NAME}_drivers)
 set(SYS_BIN     ${CMAKE_PROJECT_NAME}_sys)

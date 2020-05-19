@@ -45,5 +45,6 @@
         "st_usbfs_v1.h": "c",
         "st_usbfs_common.h": "c",
         "usb_private.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

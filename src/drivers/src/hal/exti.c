@@ -3,7 +3,7 @@
 void hal_exti_configure(hal_exti_config_t* cfg)
 {
   exti_select_source(cfg->pin, cfg->port);
-  exti_set_trigger(cfg->pin, cfg->trigger_type);
+  exti_set_trigger(cfg->pin, (enum exti_trigger_type)cfg->trigger_type);
   exti_enable_request(cfg->pin);
   nvic_enable_irq(cfg->_isr);
 }
