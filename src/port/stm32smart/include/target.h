@@ -1,6 +1,8 @@
 #pragma once 
 
-#include <libopencm3/stm32/gpio.h>
+extern "C" {
+  #include <libopencm3/stm32/gpio.h>
+}
 
 //Leds 
 #define FAULT_LED_PORT       GPIOB
