@@ -16,7 +16,8 @@ static void rcc_setup()
 
 using namespace utils::containers;
 
-struct Timer 
+
+struct Dummy
 {
   int x;
   ListNode_t node;
@@ -27,33 +28,28 @@ int main()
   os::core::init();
   os::core::run();
 
-  auto t1 = Timer{};
-  t1.x = 20;
-  auto t2 = Timer{};
-  t2.x = 30;
-  List_t timers_list{};
-  timers_list.append(&t1.node);
-  timers_list.append(&t2.node);
+  Dummy d1{};
+  d1.x = 20;
 
-  auto it = timers_list.begin();
+  Dummy d2{};
+  d2.x = 30;
 
-  timers_list.erase(it);
+  List_t l{};
+  l.append(node_link(d1));
+  l.append(node_link(d2));
 
-
-  volatile int xd = 20;
-
-  for (ListNode_t& x : timers_list)
-  {
-    Timer* t = container_of(&x, Timer, node);
-
-    if (t->x == 30)
-    {
-      xd += 30;
-    }
-  }
+  volatile int dx;
 
   while(1)
   {
-    int x = 20;
+    for(auto& x : l)
+    {
+      Dummy* ptr = container_of(&x, Dummy, node);
+      
+      if (dx == 10)
+      {
+        ptr->x = 30;
+      }
+    }
   }
 }

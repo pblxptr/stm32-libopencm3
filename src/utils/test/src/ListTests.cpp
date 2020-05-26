@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <List.hpp>
+#include <iostream>
 
 struct Dummy
 {
@@ -19,7 +20,7 @@ TEST_F(ListTests, ConfiureAndRunEmptyTest)
 
 TEST_F(ListTests, WhenTheListIsEmptyThenBeginAndEndShouldPointToItself)
 {
-  //Arrange & Act
+  // Arrange & Act
   auto list = List_t{};
   auto b = list.begin();
   auto e = list.end();
@@ -35,15 +36,19 @@ TEST_F(ListTests, WhenAppendElementToTheListThenBeginAndEndShouldPointToIt)
   auto list = List_t{};
   auto elem = Dummy{};
 
-  //Act
-  list.append(node_link(elem));
+  // //Act
+  list.append(node_link_ptr(elem));
   auto b = list.begin();
   auto e = list.end();
 
   //Assert
   ASSERT_EQ(list.size(), 1);
-  ASSERT_EQ(b, node_link(elem));
-  ASSERT_EQ(e, node_link(elem));
+  ASSERT_EQ(&*b, node_link_ptr(elem));
+  ASSERT_EQ(&*e, node_link_ptr(elem));
+
+  ASSERT_EQ(*b, node_link_r(elem));
+  ASSERT_EQ(*e, node_link_r(elem));
+  ASSERT_EQ(b, e);
 }
 
 TEST_F(ListTests, WhenErasingOneElementFromListThatHasOnlySingleElementThenTheListShouldBeEmpty)
@@ -53,7 +58,7 @@ TEST_F(ListTests, WhenErasingOneElementFromListThatHasOnlySingleElementThenTheLi
   auto elem = Dummy{};
 
   //Act
-  list.append(node_link(elem));
+  list.append(node_link_ptr(elem));
   auto it = list.begin();
   list.erase(it);
   auto b = list.begin();
@@ -64,9 +69,9 @@ TEST_F(ListTests, WhenErasingOneElementFromListThatHasOnlySingleElementThenTheLi
   ASSERT_EQ(b, e);
 }
 
-TEST_F(ListTests, WhenAddintElementsToListThenWhenAccessingTheseElementsTheyShouldSetAppropriateValues)
+TEST_F(ListTests, WhenAddingElementsToListThenElementsInListShouldHaveAppropriateValues)
 {
-  //Arrange
+  // Arrange
   auto list = List_t{};
   const size_t numberOfElements = 10;
   auto elements = std::vector<Dummy>(numberOfElements);
@@ -78,18 +83,34 @@ TEST_F(ListTests, WhenAddintElementsToListThenWhenAccessingTheseElementsTheyShou
   //Act
   for (const auto& e : elements)
   {
-    list.append(node_link(e));
+    list.append(node_link_ptr(e));
+  }
+
+  size_t i = 0; 
+
+  for (const auto& l : list)
+  {
+    if (i++ == 20) { return; }
+   Dummy* elem = container_of(&l, Dummy, node);
+    std::cout << elem->x << std::endl;
+  }
+
+  for (auto it = list.begin(); it != list.end(); ++it)
+  {
+    if (i++ == 20) { return; }
+   Dummy* elem = container_of(&*it, Dummy, node);
+    std::cout << elem->x << std::endl;
   }
 
   //Assert
   ASSERT_EQ(list.size(), numberOfElements);
 
   auto it = list.begin();
-  Dummy* elem = container_of(it, Dummy, node);
+  Dummy* elem = container_of(&*it, Dummy, node);
   ASSERT_EQ(elem->x, 0);
 
-  it = &(++(*it));
-  elem = container_of(it, Dummy, node);
+  ++it;
+  elem = container_of(&*it, Dummy, node);
   ASSERT_EQ(elem->x, 1);
 
 

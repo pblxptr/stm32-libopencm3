@@ -9,15 +9,30 @@ class ListNode_t;
   ((const char*)ptr - \
   (sizeof(type) - sizeof(((type*)(ptr))->member))))
 
-#define node_link(obj) (ListNode_t*)(&obj.node)
+#define node_link_ptr(obj) (ListNode_t*)(&obj.node)
+#define node_link_ref(obj) (ListNode_t&)(obj.node)
 
+template<class T>
+constexpr inline ListNode_t* node_link_p(T& obj) 
+{
+  return &obj.node;
+}
 
+template<class T>
+constexpr inline ListNode_t& node_link_r(T& obj)
+{
+  return obj.node;
+}
+
+class List_t;
+class ListIterator;
 
 class ListNode_t 
 {
   ListNode_t* prev_;
   ListNode_t* next_;
   friend List_t;
+  friend ListIterator;
 public:
   ListNode_t()
   {
@@ -25,52 +40,85 @@ public:
     next_ = this;
   }
 
-  ListNode_t& operator++()
+  bool operator==(const ListNode_t& rhs) const
   {
-    return *next_;
+    return this->prev_ == rhs.prev_ && 
+           this->next_ == rhs.next_;
   }
 
-  ListNode_t& operator--()
+  bool operator!=(const ListNode_t& rhs) const
   {
-    return *prev_;
+    return !(*this == rhs);
   }
 };
 
+
+class ListIterator
+{
+public:
+    using self_type = ListIterator;
+    using iterator = self_type;
+    using value_type = ListNode_t;
+    using reference = ListNode_t&;
+    using pointer = ListNode_t*;
+
+  ListIterator()
+    : elem_(nullptr) {}
+  explicit ListIterator(pointer p)
+    : elem_(p) {}
+
+  pointer operator->() const { return elem_; }
+  reference operator*() const { return *elem_; }
+  iterator& operator++() { elem_ = elem_->next_; return *this; }
+  iterator& operator--() { elem_ = elem_->prev_; return *this; }
+  bool operator==(const iterator& iterator) const { return iterator.elem_ == elem_; }
+  bool operator!=(const iterator& iterator) const { return !(*this == iterator);}
+  //TODO: implement post increment, decrement
+private:
+  pointer elem_;
+};
+  
+
 class List_t 
 {
-  ListNode_t* head_;
-  ListNode_t* tail_;
-  uint32_t size_;
 public: 
-  using iterator = ListNode_t*;
-  using const_iterator = const ListNode_t*;
+  using iterator = ListIterator::iterator;
+  // using const_iterator = const ListIterator::iterator;
+private:
+  iterator head;
+  iterator tail;
 
+  uint32_t size_;
+
+public:
   List_t()
-    : size_{0}, 
-      head_{nullptr}, 
-      tail_{nullptr} {}
+    : size_{0}{}
+  List_t(const List_t&) = delete;
+  List_t& operator=(const List_t&) = delete;
 
-  iterator begin() { return head_; }
-  iterator end() { return tail_; }
-  auto size() { return size_; }
-  bool empty() { return size_ == 0; }
+  iterator begin() const { return head; }
+  iterator end() const { return tail; }
+  auto size() const { return size_; }
+  bool empty() const { return size_ == 0; }
 
   void append(ListNode_t* node)
-  {
-    size_++;
-
-    if (tail_ ==  nullptr)
+  { 
+    if (empty())
     {
-      head_ = node;
-      tail_ = node;
+      ++size_;
+
+      head = iterator(node);
+      tail = iterator(node);
 
       return;
     }
 
-    node->prev_ = tail_;
-    node->next_ = head_;
+    ++size_;
+    tail->next_ = node;
+    node->prev_ = &*tail;
+    node->next_ = &*head;
 
-    tail_ = node;
+    tail = iterator(node);
   }
 
   void insert(iterator iter, ListNode_t* node)
@@ -85,7 +133,7 @@ public:
     size_++;
 
     node->prev_ = iter->prev_;
-    node->next_ = iter;
+    node->next_ = &*iter;
 
     iter->prev_->next_ = node;
     iter->prev_ = node;
@@ -101,8 +149,8 @@ public:
     if (size() == 1)
     {
       size_--;
-      head_ = nullptr;
-      tail_ = nullptr;
+      head = iterator(nullptr);
+      tail = iterator(nullptr);
 
       return;
     }
@@ -111,30 +159,30 @@ public:
     iter->prev_ = iter->next_;
     iter->next_->prev_ = iter->prev_;
 
-    if (iter == head_)
+    if (iter == head)
     {
-      head_ = iter->next_;
+      head = iterator(iter->next_);
     }
-    else if (iter == tail_)
+    else if (iter == tail)
     {
-      tail_ = iter->prev_;
+      tail = iterator(iter->prev_);
     }
 
   }
 
 private:
-  void update_head_and_tail(ListNode_t* iter, ListNode_t* node)
+  void update_head_and_tail(iterator iter, ListNode_t* node)
   {
-    if (iter == head_)
+    if (iter == head)
     {
-      head_ = node;
+      head = iterator(node);
 
       return;
     }
 
-    if (iter == tail_)
+    if (iter == tail)
     {
-      tail_ = node;
+      tail = iterator(node);
     }
   }
 };
