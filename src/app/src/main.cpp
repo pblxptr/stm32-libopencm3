@@ -34,9 +34,13 @@ int main()
   Dummy d2{};
   d2.x = 30;
 
+  Dummy d3{};
+  d3.x = 40;
+
   List_t l{};
-  l.append(node_link(d1));
-  l.append(node_link(d2));
+  l.append(make_link_ptr(d1));
+  l.append(make_link_ptr(d2));
+  l.append(make_link_ptr(d3));
 
   volatile int dx;
 

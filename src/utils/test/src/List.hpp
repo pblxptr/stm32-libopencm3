@@ -9,8 +9,9 @@ class ListNode_t;
   ((const char*)ptr - \
   (sizeof(type) - sizeof(((type*)(ptr))->member))))
 
-#define node_link_ptr(obj) (ListNode_t*)(&obj.node)
-#define node_link_ref(obj) (ListNode_t&)(obj.node)
+#define make_link_ptr(obj) (ListNode_t*)(&obj.node)
+#define make_link_ref(obj) (ListNode_t&)(obj.node)
+#define it_to_ptr(it) ((ListNode*)(&*it))
 
 template<class T>
 constexpr inline ListNode_t* node_link_p(T& obj) 
@@ -63,9 +64,9 @@ public:
     using pointer = ListNode_t*;
 
   ListIterator()
-    : elem_(nullptr) {}
+    : elem_{nullptr} {}
   explicit ListIterator(pointer p)
-    : elem_(p) {}
+    : elem_{p} {}
 
   pointer operator->() const { return elem_; }
   reference operator*() const { return *elem_; }
@@ -77,17 +78,14 @@ public:
 private:
   pointer elem_;
 };
-  
 
 class List_t 
 {
 public: 
   using iterator = ListIterator::iterator;
-  // using const_iterator = const ListIterator::iterator;
+  using const_iterator = const ListIterator::iterator;
 private:
-  iterator head;
-  iterator tail;
-
+  ListNode_t shadowNode_;
   uint32_t size_;
 
 public:
@@ -96,93 +94,55 @@ public:
   List_t(const List_t&) = delete;
   List_t& operator=(const List_t&) = delete;
 
-  iterator begin() const { return head; }
-  iterator end() const { return tail; }
+  iterator begin() { return iterator(shadowNode_.next_); }
+  iterator end()  { return iterator(&shadowNode_); }
   auto size() const { return size_; }
   bool empty() const { return size_ == 0; }
 
   void append(ListNode_t* node)
   { 
-    if (empty())
+    node->next_ = &shadowNode_;
+    node->prev_ = shadowNode_.prev_;
+
+    if (size_++ == 0)
     {
-      ++size_;
-
-      head = iterator(node);
-      tail = iterator(node);
-
+      shadowNode_.next_ = node;
+      shadowNode_.prev_ = node;
       return;
     }
 
-    ++size_;
-    tail->next_ = node;
-    node->prev_ = &*tail;
-    node->next_ = &*head;
-
-    tail = iterator(node);
+    shadowNode_.prev_->next_ = node;
+    shadowNode_.prev_ = node;
   }
 
-  void insert(iterator iter, ListNode_t* node)
+  iterator insert(iterator iter, ListNode_t* node)
   {
     if (empty())
     {
       append(node);
 
-      return;
+      return begin();
     }
 
-    size_++;
-
+    iter->prev_->next_ = node;
     node->prev_ = iter->prev_;
     node->next_ = &*iter;
 
-    iter->prev_->next_ = node;
-    iter->prev_ = node;
+    size_++;
 
-    update_head_and_tail(iter, node);
+    return iterator(node);
   }
 
-  void erase(iterator iter)
+  iterator erase(iterator iter)
   {
     if (empty())
-      return;
-    
-    if (size() == 1)
-    {
-      size_--;
-      head = iterator(nullptr);
-      tail = iterator(nullptr);
+      return iter;
 
-      return;
-    }
+    --size_;
 
-    size_--;
-    iter->prev_ = iter->next_;
     iter->next_->prev_ = iter->prev_;
+    iter->prev_->next_ = iter->next_;
 
-    if (iter == head)
-    {
-      head = iterator(iter->next_);
-    }
-    else if (iter == tail)
-    {
-      tail = iterator(iter->prev_);
-    }
-
-  }
-
-private:
-  void update_head_and_tail(iterator iter, ListNode_t* node)
-  {
-    if (iter == head)
-    {
-      head = iterator(node);
-
-      return;
-    }
-
-    if (iter == tail)
-    {
-      tail = iterator(node);
-    }
+    return iterator(iter->prev_->next_);
   }
 };
