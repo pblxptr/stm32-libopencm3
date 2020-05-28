@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <List.hpp>
 
 namespace os::timer 
 {
@@ -11,6 +12,7 @@ namespace os::timer
   {
     ticks_t ticks_rem;
     cb_t* cb;
+    utils::containers::ListNode_t node;
   };
 
   void create(Timer* thandle, ticks_t dealy, cb_t* cb);

@@ -5,7 +5,9 @@ extern "C" {
 }
 
 #include <Os.hpp>
+#include <Timer.hpp>
 #include <List.hpp>
+#include <Led.hpp>
 
 static void rcc_setup()
 {
@@ -16,44 +18,34 @@ static void rcc_setup()
 
 using namespace utils::containers;
 
+using drivers::Led;
+using os::timer::Timer;
 
-struct Dummy
+static Timer t;
+static Led l;
+
+
+void callback()
 {
-  int x;
-  ListNode_t node;
-};
+  l.toggle();
+
+  os::timer::create(&t, 1000, callback);
+}
 
 int main()
 {
+  rcc_setup();
+
   os::core::init();
   os::core::run();
 
-  Dummy d1{};
-  d1.x = 20;
+  l = Led{GPIOA, GPIO12, Led::ActiveOn::LOW};
+  l.set_state(Led::State::ON);
 
-  Dummy d2{};
-  d2.x = 30;
-
-  Dummy d3{};
-  d3.x = 40;
-
-  List_t l{};
-  l.append(make_link_ptr(d1));
-  l.append(make_link_ptr(d2));
-  l.append(make_link_ptr(d3));
-
-  volatile int dx;
+  os::timer::create(&t, 1000, callback);
 
   while(1)
   {
-    for(auto& x : l)
-    {
-      Dummy* ptr = container_of(&x, Dummy, node);
-      
-      if (dx == 10)
-      {
-        ptr->x = 30;
-      }
-    }
+
   }
 }

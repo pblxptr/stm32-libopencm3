@@ -6,5 +6,6 @@
 namespace os::timer
 {
   void init();
-  void update();
+  void add_timer(Timer* timer);
+  void check_timers();
 }

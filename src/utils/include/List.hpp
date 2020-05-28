@@ -10,8 +10,8 @@ class ListNode_t;
   ((const char*)ptr - \
   (sizeof(type) - sizeof(((type*)(ptr))->member))))
 
-#define make_link_ptr(obj) (ListNode_t*)(&obj.node)
-#define make_link_ref(obj) (ListNode_t&)(obj.node)
+#define make_link_ptr(obj) (utils::containers::ListNode_t*)(&(obj).node)
+#define make_link_ref(obj) (utils::containers::ListNode_t&)((obj).node)
 #define it_to_ptr(it) ((ListNode*)(&*it))
 
 template<class T>

@@ -14,6 +14,7 @@ namespace drivers {
     ActiveOn active_on_;
   
   public:
+    Led() = default;
     Led(uint32_t gpiox, uint32_t pin, ActiveOn active_on);
 
     void toggle();
