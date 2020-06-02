@@ -12,7 +12,7 @@ class ListNode_t;
 
 #define make_link_ptr(obj) (utils::containers::ListNode_t*)(&(obj).node)
 #define make_link_ref(obj) (utils::containers::ListNode_t&)((obj).node)
-#define it_to_ptr(it) ((ListNode*)(&*it))
+#define it_to_ptr(it) (&*it)
 
 template<class T>
 constexpr inline ListNode_t* node_link_p(T& obj) 
@@ -118,12 +118,13 @@ public:
 
   iterator insert(iterator iter, ListNode_t* node)
   {
-    if (empty())
+    if (empty() || iter == end())
     {
       append(node);
 
-      return begin();
+      return iterator(node);
     }
+
 
     iter->prev_->next_ = node;
     node->prev_ = iter->prev_;

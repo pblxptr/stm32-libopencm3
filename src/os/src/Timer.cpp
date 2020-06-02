@@ -1,8 +1,9 @@
 #include <private/PrivateTimer.hpp>
 #include <List.hpp>
 
+
 using utils::containers::List_t;
-using os::timer::Timer;
+using os::timer::TimerHandle;
 
 namespace {
   constexpr os::timer::ticks_t MAX_DELAY = 10000;
@@ -10,12 +11,11 @@ namespace {
 
   static os::timer::ticks_t ticks_unsynch = 0;
   static os::timer::ticks_t ticks_counter = 0;
-
   static utils::containers::List_t timers_list{};
 
   static void trigger_expired();
   static void trigger_all();
-  static void dispatch(Timer* timer);
+  static void dispatch(TimerHandle* timer);
   static void update_ticks_for_all_timers();
 
   void trigger_expired()
@@ -25,7 +25,7 @@ namespace {
     if (it == timers_list.end())
       return;
     
-    Timer* t = container_of(&*it, Timer, node);
+    TimerHandle* t = container_of(&*it, TimerHandle, node);
 
     if (ticks_unsynch >= t->ticks_rem)
     {
@@ -39,7 +39,7 @@ namespace {
   {
     for (auto it = timers_list.begin(); it != timers_list.end(); )
     {
-      Timer* t = container_of(&*it, Timer, node);
+      TimerHandle* t = container_of(&*it, TimerHandle, node);
       dispatch(t);
       it = timers_list.erase(it);
     }
@@ -47,7 +47,7 @@ namespace {
     ticks_unsynch = 0;
   }
 
-  void dispatch(Timer* timer)
+  void dispatch(TimerHandle* timer)
   {
     timer->cb();
   }
@@ -56,7 +56,7 @@ namespace {
   {
     for (auto& it : timers_list)
     {
-      Timer* t = container_of(&it, Timer, node);
+      TimerHandle* t = container_of(&it, TimerHandle, node);
 
       if (ticks_unsynch >= t->ticks_rem)
         t->ticks_rem = 0;
@@ -71,7 +71,7 @@ namespace {
 namespace os::timer 
 {
   //Api
-  void create(Timer* timer, ticks_t delay, cb_t* cb) 
+  void create(TimerHandle* timer, ticks_t delay, cb_t* cb) 
   {
     timer->ticks_rem = ticks_unsynch + delay;
     timer->cb = cb;
@@ -90,31 +90,28 @@ namespace os::timer
 
     while (wait_time >= now());
   }
-
   //Private 
   void init() {}
-  void add_timer(Timer* timer)
+  void add_timer(TimerHandle* new_timer)
   {
     if (timers_list.empty())
-    {
-      timers_list.append(make_link_ptr(*timer));
+    { 
+      timers_list.append(make_link_ptr(*new_timer));
 
       return;
     }
-    
-    auto it = timers_list.begin();
 
-    while (it != timers_list.end())
+    List_t::iterator it{};
+
+    for (it = timers_list.begin(); it != timers_list.end(); ++it)
     {
-      Timer* t = container_of(&it, Timer, node);
-      
-      if (t->ticks_rem >= timer->ticks_rem)
+      TimerHandle* existing_timer = container_of(it_to_ptr(it), TimerHandle, node); 
+
+      if (existing_timer->ticks_rem >= new_timer->ticks_rem)
         break;
-      
-      ++it;
     }
 
-    timers_list.insert(it, make_link_ptr(*timer));
+    timers_list.insert(it, make_link_ptr(*new_timer));
   }
 
   void check_timers()

@@ -2,6 +2,8 @@
 #include <List.hpp>
 #include <iostream>
 
+using namespace utils::containers;
+
 struct Dummy
 {
   uint32_t x;
@@ -168,7 +170,6 @@ TEST_F(ListTests, WhenErasingElementFromListThenItShouldDisappearFromListAndTheN
   for (const auto& x : l)
   {
     Dummy* p = container_of(&x, Dummy, node);
-    std::cout << p->x << std::endl;
   }
 }
 
@@ -197,79 +198,36 @@ TEST_F(ListTests, WhenErasingLastElementThenItShouldBeRemovedFromListAndEndItera
   for (const auto& x : l)
   {
     Dummy* p = container_of(&x, Dummy, node);
+  }
+}
+
+TEST_F(ListTests, WhenInsertingElementToTheEndThenTheItratorsShouldPointCorrectly)
+{
+  auto e1 = Dummy{};
+  e1.x = 10;
+
+  auto e2 = Dummy{};
+  e2.x = 20;
+
+  auto e3 = Dummy{};
+  e3.x = 30;
+
+  auto l = List_t{};
+
+  auto it = l.end();
+  l.insert(it, make_link_ptr(e1));
+
+  it = l.end();
+  l.insert(it, make_link_ptr(e2));
+
+  it = l.end();
+  l.insert(it, make_link_ptr(e3));
+
+  for (const auto& x : l)
+  {
+    Dummy* p = container_of(&x, Dummy, node);
     std::cout << p->x << std::endl;
   }
 }
 
 
-
-// TEST_F(ListTests, WhenErasingOneElementFromListThatHasOnlySingleElementThenTheListShouldBeEmpty)
-// {
-//   //Arrange
-//   auto list = List_t{};
-//   auto elem = Dummy{};
-
-//   //Act
-//   list.append(make_link_ptr(elem));
-//   auto it = list.begin();
-//   list.erase(it);
-//   auto b = list.begin();
-//   auto e = list.end();
-
-//   //Assert
-//   ASSERT_TRUE(list.empty());
-//   ASSERT_EQ(b, e);
-// }
-
-// TEST_F(ListTests, WhenAddingElementsToListThenElementsInListShouldHaveAppropriateValues)
-// {
-//   // Arrange
-//   auto list = List_t{};
-//   const size_t numberOfElements = 10;
-//   auto elements = std::vector<Dummy>(numberOfElements);
-//   for(size_t i = 0; i < numberOfElements; ++i)
-//   {
-//     elements[i].x = i;
-//   }
-
-//   std::cout << "Size:" << sizeof(list) << std::endl;
-
-//   //Act
-//   for (const auto& e : elements)
-//   {
-//     list.append(make_link_ptr(e));
-//   }
-
-//   size_t i = 0; 
-
-//   for (const auto& l : list)
-//   {
-//     Dummy* elem = container_of(&l, Dummy, node);
-//   }
-
-//   for (auto it = list.begin(); it != list.end(); ++it)
-//   {
-//     std::cout << "xd" << std::endl;
-//     Dummy* elem = container_of(&*it, Dummy, node);
-//   }
-
-//   //Assert
-//   ASSERT_EQ(list.size(), numberOfElements);
-
-//   auto it = list.begin();
-//   Dummy* elem = container_of(&*it, Dummy, node);
-//   ASSERT_EQ(elem->x, 0);
-
-//   ++it;
-//   elem = container_of(&*it, Dummy, node);
-//   ASSERT_EQ(elem->x, 1);
-
-
-//   // for (size_t i = 0; i < numberOfElements; ++i)
-//   // {
-//   //   Dummy* elem = container_of(it, Dummy, node);
-//   //   ASSERT_EQ(elem->x, elements[i].x);
-
-//   //   ++it;
-//   // }
-// }
