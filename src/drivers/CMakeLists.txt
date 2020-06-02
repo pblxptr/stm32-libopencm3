@@ -1,5 +1,6 @@
 set(SOURCES
   src/Led.cpp
+  src/Gpio.cpp
 )
 
 add_library(${DRIVERS_BIN} STATIC ${SOURCES})

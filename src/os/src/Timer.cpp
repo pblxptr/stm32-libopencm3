@@ -29,8 +29,8 @@ namespace {
 
     if (ticks_unsynch >= t->ticks_rem)
     {
-      dispatch(t);
       timers_list.erase(it);
+      dispatch(t);
       update_ticks_for_all_timers();
     }
   }
@@ -40,8 +40,8 @@ namespace {
     for (auto it = timers_list.begin(); it != timers_list.end(); )
     {
       TimerHandle* t = container_of(&*it, TimerHandle, node);
-      dispatch(t);
       it = timers_list.erase(it);
+      dispatch(t);
     }
 
     ticks_unsynch = 0;
@@ -91,7 +91,11 @@ namespace os::timer
     while (wait_time >= now());
   }
   //Private 
-  void init() {}
+  void init() 
+  {
+    ticks_counter = 0;
+    ticks_unsynch = 0;
+  }
   void add_timer(TimerHandle* new_timer)
   {
     if (timers_list.empty())

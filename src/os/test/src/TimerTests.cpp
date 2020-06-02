@@ -51,3 +51,24 @@ TEST_F(TimerTests, WhenAddingMultipleTimersThenTheyShouldBeSortedByTimeout)
     os::timer::check_timers();
   ASSERT_EQ(callback_shared_resource, 3000);
 }
+
+static TimerHandle t1;
+static TimerHandle t2;
+
+
+void cb1()
+{
+  os::timer::create(&t1, 5000, cb1);
+  std::cout << "cb1\n";
+}
+
+
+TEST_F(TimerTests, WhenCreatingTimerFromIsrThenItShouldntBreakTheList)
+{
+  os::timer::create(&t1, 5000, cb1);
+
+  for (size_t i = 0; i < 10000; i++)
+  {
+    os::timer::check_timers();
+  }
+}

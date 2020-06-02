@@ -8,6 +8,11 @@ extern "C" {
 #include <Timer.hpp>
 #include <List.hpp>
 #include <Led.hpp>
+#include <Gpio.hpp>
+
+#define FAN_GPIO GPIOA
+#define FAN_PIN  GPIO8
+
 
 static void rcc_setup()
 {
@@ -18,30 +23,23 @@ static void rcc_setup()
 
 using utils::containers::List_t;
 using drivers::Led;
+using drivers::Gpio;
 using os::timer::TimerHandle;
 
-static TimerHandle t1;
-static TimerHandle t2;
-static TimerHandle t3;
 
-static Led l;
+static Led fan_led;
+static TimerHandle fan_timer;
+static Gpio fan_gpio;
 
 
-void t1_cb()
+void fan_timer_callback()
 {
-  l.toggle();
-}
+  os::timer::create(&fan_timer, 5000, fan_timer_callback);
 
-void t2_cb()
-{
-  l.toggle();
-}
+  fan_led.toggle();
+  fan_gpio.toggle();
 
-void t3_cb()
-{
-  l.toggle();
 }
-
 
 int main()
 {
@@ -50,11 +48,10 @@ int main()
   os::core::init();
   os::core::run();
 
-  l = Led{GPIOA, GPIO12, Led::ActiveOn::LOW};
+  fan_led = Led{GPIOA, GPIO12, Led::ActiveOn::LOW};
+  fan_gpio = Gpio{FAN_GPIO, FAN_PIN};
 
-  os::timer::create(&t1, 2000, t1_cb);
-  os::timer::create(&t3, 8000, t3_cb);
-  os::timer::create(&t2, 5000, t2_cb);
+  os::timer::create(&fan_timer, 5000, fan_timer_callback);
   
 
   while(1)
