@@ -58,8 +58,9 @@ static TimerHandle t2;
 
 void cb1()
 {
-  os::timer::create(&t1, 5000, cb1);
   std::cout << "cb1\n";
+  os::timer::create(&t1, 5000, cb1);
+
 }
 
 

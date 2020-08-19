@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 set(APP_BIN     ${CMAKE_PROJECT_NAME})
 set(UTILS_BIN   ${CMAKE_PROJECT_NAME}_utils)
 set(DRIVERS_BIN ${CMAKE_PROJECT_NAME}_drivers)
-set(OS_BIN     ${CMAKE_PROJECT_NAME}_os)
+set(OS_BIN      ${CMAKE_PROJECT_NAME}_os)
 set(PORT_BIN    ${CMAKE_PROJECT_NAME}_port)
 
 add_subdirectory(app)

@@ -115,6 +115,7 @@ namespace os::timer
         break;
     }
 
+
     timers_list.insert(it, make_link_ptr(*new_timer));
   }
 

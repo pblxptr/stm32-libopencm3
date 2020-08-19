@@ -109,6 +109,7 @@ public:
     {
       shadowNode_.next_ = node;
       shadowNode_.prev_ = node;
+
       return;
     }
 
@@ -125,8 +126,8 @@ public:
       return iterator(node);
     }
 
-
     iter->prev_->next_ = node;
+    iter->prev_ = node;
     node->prev_ = iter->prev_;
     node->next_ = &*iter;
 

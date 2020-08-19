@@ -226,8 +226,53 @@ TEST_F(ListTests, WhenInsertingElementToTheEndThenTheItratorsShouldPointCorrectl
   for (const auto& x : l)
   {
     Dummy* p = container_of(&x, Dummy, node);
-    std::cout << p->x << std::endl;
   }
+}
+
+//Todo: DOpisac test
+TEST_F(ListTests, Wheee)
+{
+  std::cout << "Dupa\n";
+  auto e1 = Dummy{};
+  e1.x = 10;
+
+  auto e2 = Dummy{};
+  e2.x = 20;
+
+  auto l = List_t{};
+  l.append(make_link_ptr(e1));
+
+  for (auto& xd : l)
+  {
+    Dummy* t = container_of(&xd, Dummy, node);
+    std::cout << t->x << std::endl;
+  }
+
+  const auto& it= l.begin();
+
+  l.insert(it, make_link_ptr(e2));
+
+  for (auto& xd : l)
+  {
+    Dummy* t = container_of(&xd, Dummy, node);
+    std::cout << t->x << std::endl;
+  }
+
+  l.erase(it);
+
+   Dummy* t = container_of(it_to_ptr(l.begin()), Dummy, node);
+   Dummy* t2 = container_of(it_to_ptr(l.end()), Dummy, node);
+
+
+  size_t i = 0;
+
+  for (auto& xd : l)
+  {
+    i++;
+    Dummy* t = container_of(&xd, Dummy, node);
+    std::cout << t->x << std::endl;
+  }
+
 }
 
 
