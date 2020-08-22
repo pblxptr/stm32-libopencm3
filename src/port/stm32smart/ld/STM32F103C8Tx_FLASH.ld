@@ -24,4 +24,4 @@ MEMORY
 }
 
 /* Include the common ld script. */
-INCLUDE /home/pp/STM32/STM32_Template/lib/libopencm3/lib/cortex-m-generic.ld
+INCLUDE /home/pp/STM32/HenhouseCtrl/firmware/lib/libopencm3/lib/cortex-m-generic.ld

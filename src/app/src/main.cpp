@@ -14,6 +14,7 @@ extern "C" {
 #include <Gpio.hpp>
 #include <uprintf.hpp>
 #include <stdio.h>
+#include <server.hpp>
 
 #define FAN_GPIO GPIOA
 #define FAN_PIN  GPIO8
@@ -126,12 +127,21 @@ int main()
   // engine.start();
   // engine.stop();
 
-  while(1)
-  {
-    // auto counter = timer_get_counter(TIM1);
-    // char tab[24];
+  server_init();
 
-    // sprintf(tab, "%d\r\n", counter);
-    // utils::debug::uprintf_send(USART1, tab);
+  while(true)
+  {
+   server_task();
   }
+
+  // while(true)
+  // {
+  //   // server_check();
+  //   // auto counter = timer_get_counter(TIM1);
+  //   // char tab[24];
+
+  //   // sprintf(tab, "%d\r\n", counter);
+  //   // utils::debug::uprintf_send(USART1, tab);
+  // }
+
 }
