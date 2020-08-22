@@ -2,6 +2,7 @@
 
 extern "C" {
   #include <libopencm3/stm32/gpio.h>
+  #include <libopencm3/cm3/nvic.h>
 }
 
 //Leds 
@@ -34,4 +35,5 @@ extern "C" {
 #define ENCODER_COUNTER_CLOCKWISE_DIRECTION_PIN       GPIO8
 #define ENCODER_COUNTER_CLOCKWISE_DIRECTION_ISR_LINE  NVIC_EXTI9_5_IRQ
 #define ENCODER_COUNTER_CLOCKWISE_DIRECTION_EXTI      EXTI8
+
 //Encoder end

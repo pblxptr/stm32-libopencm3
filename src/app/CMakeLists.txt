@@ -1,5 +1,6 @@
 set(SOURCES
  src/main.cpp
+ src/server.cpp
 )
 
 add_executable(${APP_BIN} ${SOURCES})
