@@ -18,7 +18,7 @@ include(${PORT_DIR}/port.cmake)
 
 # COMPILER CONFIGURATION
 set(COMPILER_CXX_FLAGS "-fno-use-cxa-atexit -Og -fno-exceptions -g")
-set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -DNDEBUG -Wall -Werror -save-temps")
+set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -DNDEBUG -Wall -Wextra -Werror -save-temps")
 set(LINKER_FLAGS "-nostartfiles -specs=nano.specs -u ISR_TAG_WORKAROUND -specs=nosys.specs --static -ggdb3 -Wl,--gc-sections -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -Wl,-Map=output.map -T ${LD_SCRIPT}")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

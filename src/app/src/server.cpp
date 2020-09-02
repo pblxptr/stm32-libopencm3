@@ -70,8 +70,7 @@ void server_run()
   while(true)
   {
     size_t xsize = read_rb.capacity();
-    volatile size_t x = static_cast<volatile size_t>(xsize);
-    if (x >= 64)
+    if (xsize >= 64)
     {
       while (read_rb.capacity() != 0)
       {

@@ -8,7 +8,7 @@ extern "C" {
 
 namespace utils::debug
 {
-  void uprintf_init(uint32_t usart)
+  void uprintf_init([[maybe_unused]]uint32_t usart)
   {
     //RCC 
     rcc_periph_clock_enable(RCC_USART1);
@@ -29,7 +29,7 @@ namespace utils::debug
     usart_enable(USART1);
 
   }
-  void uprintf_send(uint32_t usart, const char* data)
+  void uprintf_send([[maybe_unused]]uint32_t usart, const char* data)
   {
     while (*data)
     {
@@ -37,7 +37,7 @@ namespace utils::debug
     }
   }
 
-  void uprintf_send(uint32_t usart, const uint8_t data)
+  void uprintf_send([[maybe_unused]] uint32_t usart, const uint8_t data)
   {
     usart_send_blocking(USART1, data);
   }
