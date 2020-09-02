@@ -35,8 +35,6 @@ static void readData()
 {
   auto data = usart_recv(USART1);
   read_rb.write(static_cast<uint8_t>(data));
-
-  // usart_enable_rx_interrupt(USART1);
 }
 
 void server_init()
@@ -67,9 +65,13 @@ void server_init()
   usart_enable(USART1);
 }
 
-void server_task()
+void server_run()
 {
-    if (read_rb.capacity() >= 64)
+  while(true)
+  {
+    size_t xsize = read_rb.capacity();
+    volatile size_t x = static_cast<volatile size_t>(xsize);
+    if (x >= 64)
     {
       while (read_rb.capacity() != 0)
       {
@@ -77,6 +79,7 @@ void server_task()
       }
       sendData();
     }
+  }
 }
 
 void usart1_isr()

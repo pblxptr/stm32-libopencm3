@@ -30,6 +30,7 @@ def flash(binary_path, target):
 
   path_to_jlink_flash_script = "{0}/{1}".format(path_to_jlink_scripts_dir, jlink_flash_command_filename)
   flash_command = "JLinkExe -device {0} -If SWD -Speed 1000 -CommandFile {1}".format(target, path_to_jlink_flash_script)
+  print(flash_command)
   subprocess.call(flash_command, shell=True)
 
 def main():

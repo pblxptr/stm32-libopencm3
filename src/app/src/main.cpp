@@ -32,9 +32,10 @@ int main()
   os::core::run();
 
   server_init();
+  server_run();
 
-  while(true)
+  while(true) 
   {
-   server_task();
+
   }
 }
