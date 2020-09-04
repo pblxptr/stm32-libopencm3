@@ -7,7 +7,7 @@ extern "C" {
 
 #include <server.hpp>
 #include <stdint.h>
-#include <ring_buffer.hpp>
+#include <RingBuffer.hpp>
 #include <Os.hpp>
 #include <Timer.hpp>
 #include <target.h>
@@ -15,9 +15,13 @@ extern "C" {
 static uint8_t w_buffer[1024]; // write buffer
 static uint8_t r_buffer[1024]; // read buffer
 
-utils::containers::RingBuffer write_rb{w_buffer, sizeof(w_buffer)};
-utils::containers::RingBuffer read_rb{r_buffer, sizeof(r_buffer)};
+using IsrRingBuffer = utils::containers::RingBuffer;
 
+static IsrRingBuffer write_rb{w_buffer, sizeof(w_buffer)};
+static IsrRingBuffer read_rb{r_buffer, sizeof(r_buffer)};
+
+
+[[maybe_unused]]
 static void sendData()
 {
   if (write_rb.capacity() != 0)
@@ -31,10 +35,11 @@ static void sendData()
   }
 }
 
+[[maybe_unused]]
 static void readData()
 {
   auto data = usart_recv(USART1);
-  read_rb.write(static_cast<uint8_t>(data));
+  read_rb.write(data);
 }
 
 void server_init()
@@ -65,31 +70,32 @@ void server_init()
   usart_enable(USART1);
 }
 
-void server_run()
+void server_run() 
 {
   while(true)
   {
-    size_t xsize = read_rb.capacity();
-    if (xsize >= 64)
+    if (read_rb.capacity() >= 64)
     {
       while (read_rb.capacity() != 0)
       {
         write_rb.write(read_rb.read());
       }
+      
       sendData();
     }
   }
 }
 
-void usart1_isr()
-{
-  if (usart_get_flag(USART1, USART_FLAG_TXE) != 0) 
-  {
-    sendData();
-  }
 
-  if (usart_get_flag(USART1, USART_FLAG_RXNE) != 0) // when data is ready to read
-  {
-    readData(); 
-  }
-} 
+// void usart1_isr()
+// {
+//   if (usart_get_flag(USART1, USART_FLAG_TXE) != 0) 
+//   {
+//     sendData();
+//   }
+
+//   if (usart_get_flag(USART1, USART_FLAG_RXNE) != 0) // when data is ready to read
+//   {
+//     readData(); 
+//   }
+// } 

@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
-project(Utils_tests)
+project(Drivers_test)
 
 set(SOURCES
-  src/ListTests.cpp
-  src/RingBufferTest.cpp
+  src/Esp8266WlanTests.cpp
 )
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,6 +14,7 @@ set(GTEST_PATH /home/pp/STM32/HenhouseCtrl/firmware/lib/googletest)
 set(GTEST_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/googletest)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../utils/include)
 
 add_subdirectory(${GTEST_PATH} ${GTEST_OUT_PATH})
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})

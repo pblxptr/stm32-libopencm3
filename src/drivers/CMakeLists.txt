@@ -1,6 +1,7 @@
 set(SOURCES
   src/Led.cpp
   src/Gpio.cpp
+  src/Esp8266Wlan.cpp
 )
 
 add_library(${DRIVERS_BIN} STATIC ${SOURCES})

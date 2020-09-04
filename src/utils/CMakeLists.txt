@@ -5,6 +5,7 @@ set(SOURCES
   include/list.h
   include/ring_buffer.h
   src/uprintf.cpp
+  src/RingBuffer.cpp
 )
 
 add_library(${UTILS_BIN} STATIC ${SOURCES})
