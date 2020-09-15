@@ -11,15 +11,17 @@ extern "C" {
 using namespace drivers;
 
 namespace {
-
   static constexpr size_t BUFFER_SIZE = 64;
+
+  [[maybe_unused]]
   static uint8_t receive_buff[BUFFER_SIZE];
 
+[[maybe_unused]]
 void dma_receive(const Esp8266WlanHwCfg& hw_cfg, uint8_t* buff, size_t buff_size)
 {
 	dma_channel_reset(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id);
 
-	dma_set_peripheral_address(hw_cfg.usart_dr_addr, hw_cfg.dma_rx_channel_id, hw_cfg.usart_dr_addr);
+	dma_set_peripheral_address(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id, hw_cfg.usart_dr_addr);
 	dma_set_memory_address(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id, reinterpret_cast<uint32_t>(buff));
 	dma_set_number_of_data(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id, buff_size);
 	dma_set_read_from_peripheral(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id);
@@ -33,8 +35,6 @@ void dma_receive(const Esp8266WlanHwCfg& hw_cfg, uint8_t* buff, size_t buff_size
   dma_enable_half_transfer_interrupt(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id);
 
 	dma_enable_channel(hw_cfg.dma_id, hw_cfg.dma_rx_channel_id);
-
-  nvic_enable_irq(hw_cfg.dma_rx_nvic_irq);  
 
   usart_enable_rx_dma(hw_cfg.usart_id);
 }
@@ -69,7 +69,7 @@ void Esp8266Wlan::init()
   usart_set_flow_control(hw_cfg_.usart_id, USART_FLOWCONTROL_NONE);
   usart_enable_rx_interrupt(hw_cfg_.usart_id);
 
-  nvic_enable_irq(hw_cfg_.usart_nvic_irq);
+  // nvic_enable_irq(hw_cfg_.usart_nvic_irq);
 
   // -> Enable 
   usart_enable(hw_cfg_.usart_id);
@@ -85,7 +85,7 @@ void Esp8266Wlan::connect_ap(std::string_view ssid, std::string_view password)
   [[maybe_unused]] auto x = ssid;
   [[maybe_unused]] auto y = password;
 
-  dma_receive(hw_cfg_, receive_buff, sizeof(receive_buff));
+  // dma_receive(hw_cfg_, receive_buff, sizeof(receive_buff));
 
 }
 
@@ -94,7 +94,31 @@ void Esp8266Wlan::set_mode(Esp8266WlanMode mode)
   [[maybe_unused]] auto x = mode;
 }  
 
+//API
+
+Esp8266WlanConnectionId_t Esp8266Wlan::connect([[maybe_unused]] const std::string_view addr, [[maybe_unused]]uint16_t port)
+{
+  return static_cast<std::underlying_type_t<StatusCode>>(StatusCode::FAILED);
 }
+
+StatusCode Esp8266Wlan::async_receive(const Esp8266WlanConnectionId_t conn_id, uint8_t* buff, const size_t size, CompletitionHandler_t handler)
+{
+  auto& connection = connections_[conn_id];
+
+  if (!connection.is_active)
+  {
+    return StatusCode::FAILED;
+  }
+
+  connection.receive_buff = buff;
+  connection.receive_size = size;
+  connection.receive_handler = handler;
+
+  return StatusCode::SUCCESS;
+}
+
+}
+
 
 void usart1_isr()
 {

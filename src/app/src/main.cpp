@@ -25,6 +25,8 @@ static void rcc_setup()
   rcc_periph_clock_enable(RCC_GPIOB); 
 }
 
+volatile int x = 10;
+
 int main()
 {
   rcc_setup();
@@ -46,6 +48,17 @@ int main()
   };
   esp8266.init();
   esp8266.connect_ap("asd", "asd");
+
+  uint8_t buff[64];
+
+  esp8266.connect("https://wwww.wykop.pl", 80);
+  esp8266.async_receive(1, buff, sizeof(buff), [](const auto ec)
+  {
+    if (ec == drivers::StatusCode::FAILED)
+    {
+      x = 12;
+    }
+  });
 
   while(true)
   {

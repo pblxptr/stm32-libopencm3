@@ -24,33 +24,30 @@ namespace utils::containers
 
   void RingBuffer::write(uint8_t data)
   {
-    buff_[head_] = data;
-    
-    if (++head_ >= buffSize_)
-    {
-      head_= 0;
-    }
+    buff_[head_++ % buffSize_] = data;
 
-    if (capacity_ < buffSize_) {
-        capacity_++;
+    if (capacity_ != buffSize_)
+    {
+      ++capacity_;
     }
+  }
+
+  void RingBuffer::write(uint8_t* data, size_t len)
+  {
+    for (size_t i = 0; i < len; i++)
+      write(*data++);
   }
 
   uint8_t RingBuffer::read()
   {
+    auto ret = uint8_t{0xFF}; // temporary
+
     if (capacity_ == 0)
-    {
-        return 0;
-    }
-
-    capacity_--;
-
-    auto ret = buff_[tail_];
+      return ret;
     
-    if (tail_++ == buffSize_)
-    {
-      tail_ = 0;
-    }
+    ret = buff_[tail_++ % buffSize_];
+
+    --capacity_;
 
     return ret;
   }
