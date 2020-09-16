@@ -40,7 +40,7 @@ namespace utils::containers
 
   uint8_t RingBuffer::read()
   {
-    auto ret = uint8_t{0xFF}; // temporary
+    auto ret = uint8_t{0xFF}; // temporary invalid value
 
     if (capacity_ == 0)
       return ret;

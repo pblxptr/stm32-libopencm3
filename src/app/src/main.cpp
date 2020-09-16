@@ -16,7 +16,8 @@ extern "C" {
 #include <uprintf.hpp>
 #include <stdio.h>
 #include <server.hpp>
-#include <Esp8266Wlan.hpp>
+// #include <Esp8266Wlan.hpp>
+#include <Esp8266.hpp>
 
 static void rcc_setup()
 {
@@ -34,8 +35,33 @@ int main()
   os::core::init();
   os::core::run();
 
-  auto esp8266 = drivers::Esp8266Wlan{
-    drivers::Esp8266WlanHwCfg {
+  // auto esp8266 = drivers::Esp8266Wlan{
+  //   drivers::Esp8266WlanHwCfg {
+  //     DMA1, 
+  //     DMA_CHANNEL5,
+  //     NVIC_DMA1_CHANNEL5_IRQ,
+  //     DMA_CHANNEL6,
+  //     NVIC_DMA1_CHANNEL6_IRQ,
+  //     USART1,
+  //     reinterpret_cast<uint32_t>(&USART1_DR),
+  //     NVIC_USART1_IRQ
+  //   }
+  // };
+  // esp8266.init();
+  // esp8266.connect_ap("asd", "asd");
+
+  // uint8_t buff[64];
+
+  // esp8266.connect("https://wwww.wykop.pl", 80);
+  // esp8266.async_receive(1, buff, sizeof(buff), [](const auto ec)
+  // {
+  //   if (ec == drivers::StatusCode::FAILED)
+  //   {
+  //     x = 12;
+  //   }
+  // });
+
+  auto esp8266_wlan_driver_cfg = drivers::esp8266::WlanHwCfg{
       DMA1, 
       DMA_CHANNEL5,
       NVIC_DMA1_CHANNEL5_IRQ,
@@ -44,24 +70,13 @@ int main()
       USART1,
       reinterpret_cast<uint32_t>(&USART1_DR),
       NVIC_USART1_IRQ
-    }
-  };
-  esp8266.init();
-  esp8266.connect_ap("asd", "asd");
-
-  uint8_t buff[64];
-
-  esp8266.connect("https://wwww.wykop.pl", 80);
-  esp8266.async_receive(1, buff, sizeof(buff), [](const auto ec)
-  {
-    if (ec == drivers::StatusCode::FAILED)
-    {
-      x = 12;
-    }
-  });
+    };
+  
+  drivers::esp8266::init(esp8266_wlan_driver_cfg);
+  drivers::esp8266::connect_ap("teara", "asd");
 
   while(true)
   {
-
+    drivers::esp8266::process();
   }
 }
