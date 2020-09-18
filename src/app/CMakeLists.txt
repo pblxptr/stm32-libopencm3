@@ -1,6 +1,7 @@
 set(SOURCES
- src/main.cpp
- src/server.cpp
+  # src/main.cpp
+  src/main_test.cpp
+  # src/server.cpp
 )
 
 add_executable(${APP_BIN} ${SOURCES})
@@ -8,11 +9,11 @@ add_executable(${APP_BIN} ${SOURCES})
 target_include_directories(${APP_BIN} PRIVATE include)
 
 target_link_libraries(${APP_BIN}
-  ${PORT_BIN}
+  # ${PORT_BIN}
   ${LIBOPENCM3_BIN}
-  ${DRIVERS_BIN}
-  ${OS_BIN}  
-  ${UTILS_BIN}
+  # ${DRIVERS_BIN}
+  # ${OS_BIN}  
+  # ${UTILS_BIN}
 )
 
 add_custom_command(TARGET ${APP_BIN} POST_BUILD

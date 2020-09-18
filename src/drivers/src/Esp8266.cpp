@@ -22,37 +22,9 @@ namespace {
   static uint8_t rx_rb_buffer[RING_BUFFER_SIZE];
 
   static WlanHwCfg wlan_hw_cfg;
-  static RingBuffer rx_rb{rx_rb_buffer, sizeof(rx_rb_buffer)};
+  static RingBuffer rx_rb{rx_rb_buffer, RING_BUFFER_SIZE};
   
-  /**
-   *  called mainly in interrupts 
-   */
-  void process_rx()
-  {
-    static size_t last_position = 0;
-
-    const size_t current_position = dma_get_number_of_data(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
-
-    //There is some data in  rx_dma_buffer.
-    if (current_position != last_position)
-    {
-      //Case 1 -> normal linear mode.
-      if (current_position > last_position)
-      {
-        rx_rb.write(&rx_dma_buffer[last_position], current_position);
-      }
-      //Case 3 -> overflow mode.
-      else
-      {
-        rx_rb.write(&rx_dma_buffer[last_position], sizeof(rx_dma_buffer) - last_position - current_position);
-        rx_rb.write(&rx_dma_buffer[0], current_position);
-      }
-    }
-
-    last_position = current_position % sizeof(rx_dma_buffer);
-  }
-
-  void dma_receive(uint8_t* buff, size_t buff_size)
+  [[maybe_unused]]void dma_receive(uint8_t* buff, size_t buff_size)
   {
     dma_channel_reset(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
 
@@ -66,12 +38,45 @@ namespace {
     dma_set_memory_size(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id, DMA_CCR_MSIZE_8BIT);
     dma_set_priority(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id, DMA_CCR_PL_HIGH);
 
-    // dma_enable_transfer_complete_interrupt(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
-    // dma_enable_half_transfer_interrupt(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
+    dma_enable_transfer_complete_interrupt(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
+    dma_enable_half_transfer_interrupt(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
+
+    nvic_set_priority(wlan_hw_cfg.dma_rx_nvic_irq, 0);
+    nvic_enable_irq(wlan_hw_cfg.dma_rx_nvic_irq);
 
     dma_enable_channel(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
 
     usart_enable_rx_dma(wlan_hw_cfg.usart_id);
+  }
+
+  /**
+   *  called mainly in interrupts 
+   */
+  [[maybe_unused]] void process_rx()
+  {
+    static size_t last_position = 0;
+
+    const size_t current_position = dma_get_number_of_data(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
+
+    //There is some data in  rx_dma_buffer.
+    if (current_position != last_position)
+    {
+      //Case 1 -> normal linear mode.
+      if (current_position > last_position)
+      {
+        rx_rb.write(&rx_dma_buffer[last_position], current_position - last_position);
+      }
+      //Case 3 -> overflow mode.
+      else
+      {
+        rx_rb.write(&rx_dma_buffer[last_position], DMA_BUFFER_SIZE - last_position - current_position);
+        rx_rb.write(&rx_dma_buffer[0], current_position);
+      }
+    }
+
+    last_position = current_position % sizeof(rx_dma_buffer);
+
+    [[maybe_unused]] int x = 10;
   }
 }
 
@@ -100,16 +105,17 @@ namespace drivers::esp8266
     usart_set_databits(wlan_hw_cfg.usart_id, 8);
     usart_set_stopbits(wlan_hw_cfg.usart_id, 1);
     usart_set_flow_control(wlan_hw_cfg.usart_id, USART_FLOWCONTROL_NONE);
-    usart_enable_rx_interrupt(wlan_hw_cfg.usart_id);
+
+    // USART_CR1(USART1) |= USART_CR1_IDLEIE;
+    usart_enable_rx_interrupt(USART1);
 
     nvic_enable_irq(wlan_hw_cfg.usart_nvic_irq);
+
+    dma_receive(rx_dma_buffer, DMA_BUFFER_SIZE);
 
     // -> Enable 
     usart_enable(wlan_hw_cfg.usart_id);
 
-    //Enable DMA_RX IRQ
-    nvic_set_priority(wlan_hw_cfg.dma_rx_nvic_irq, 0);
-    nvic_enable_irq(wlan_hw_cfg.dma_rx_nvic_irq);
   }
 
   void set_mode(const WlanMode& wlan_mode)
@@ -119,13 +125,8 @@ namespace drivers::esp8266
 
   void connect_ap(const std::string_view ssid, const std::string_view password)
   {
-    dma_receive(rx_dma_buffer, DMA_BUFFER_SIZE);
-
-    [[maybe_unused]] auto num_of_data = dma_get_number_of_data(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id);
-  
-    [[maybe_unused]] volatile auto x = ssid;
-    [[maybe_unused]] volatile auto y = password;
-
+    [[maybe_unused]] auto x = ssid;
+    [[maybe_unused]] auto y = password;
   }
 
   void process()
@@ -134,101 +135,36 @@ namespace drivers::esp8266
   }
 }
 
-/**  
- * 
- * 1)
- *   pos = 0 
- *   cur_pos = 8
- *   parse(0 -> 8)
- *   pos = 8 
- *   alg pos: sizeof(buffer) - current_pos  -> 16 - 8 = 8 
- * 
- *   A A A A A A A A 
- *   0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
- *   x
- * 2) pos = 8 
- *    cur_pos = 16
- *    parse(8, 8)
- * 
- *   A A A A A A A A A A  A A  A  A   A  A
- *   0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15   
- *                   x
- * 
- *   alg pos: sizeof(buffer) - current_pos = 16 - 16 = 0
- * 
- * 3) pos = 10
- *    cur_pos = 3 
- *    parse(pos, 3)
- * 
- *   A A A A A A A A A A  A A  A  A   A  A
- *   0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15   
- *                       x
- * 
- *   alg pos: sizeof(buffer) - current_pos = 16 - 3 = 13
- * 
- * 4) pos = 8
- *    cur_pos = 3 
- *    prase(8, 16 - pos -> 8)
- *    parse(0, 3);
- *    alg pos: cur_pos
- * 
- *   A A A A A A A A A A  A A  A  A   A  A
- *   0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15   
- *                   x 
- *         d
- *   void process_rx()
-  {
-    const size_t current_position = dma_get_number_of_data(wlan_hw_cfg.dma_id, wlan_hw_cfg.dma_rx_channel_id); //32
-
-    //We have some data on buffer
-    if (current_position != last_position)
-    {
-      //Case 1 -> normal linear mode
-      if (current_position > last_position)
-      {
-        write_internal_rx_rb(&rx_dma_buffer[last_position], current_position);
-      }
-      //Case 3 -> overflow mode
-      else
-      {
-        write_internal_rx_rb(&rx_dma_buffer[last_position], sizeof(rx_dma_buffer) - last_position - current_position);
-        write_internal_rx_rb(&rx_dma_buffer[0], current_position);
-      }
-    }
-
-    last_position = current_position % sizeof(rx_dma_buffer);
-  }
-
- * 
- * 
- */
+#define __IO volatile
 
 //Interrupts 
 void usart1_isr()
 {
-  if (usart_get_flag(USART1, USART_FLAG_IDLE))
-  {
-    process_rx();
-  }
-} 
+  __IO uint32_t tmpreg;
+  tmpreg = USART1_SR;
+  (void) tmpreg;
+  tmpreg = USART1_DR;
+  (void) tmpreg;
+
+}
 
 void dma1_channel5_isr(void)
 {
   if (dma_get_interrupt_flag(USART1, DMA_CHANNEL5, DMA_TCIF))
   {
-    process_rx();
+    // process_rx();
     dma_clear_interrupt_flags(USART1, DMA_CHANNEL5, DMA_TCIF);
   }
 
   else if (dma_get_interrupt_flag(USART1, DMA_CHANNEL5, DMA_HTIF))
   {
-    process_rx();
+    // process_rx();
     dma_clear_interrupt_flags(USART1, DMA_CHANNEL5, DMA_HTIF);
   }
 
   else if (dma_get_interrupt_flag(USART1, DMA_CHANNEL5, DMA_TEIF))
   {
-    process_rx();
+    // process_rx();
     dma_clear_interrupt_flags(USART1, DMA_CHANNEL5, DMA_TEIF);
   }
 }

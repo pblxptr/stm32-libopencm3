@@ -1,7 +1,7 @@
 set(SOURCES
   src/Led.cpp
   src/Gpio.cpp
-  src/Esp8266Wlan.cpp
+  # src/Esp8266Wlan.cpp
   src/Esp8266.cpp
 )
 
