@@ -32,19 +32,19 @@ int main()
 {
   rcc_setup();
   
-  os::core::init();
-  os::core::run();
+  // os::core::init();
+  // os::core::run();
 
-  auto esp8266_wlan_driver_cfg = drivers::esp8266::WlanHwCfg{
-      DMA1, 
-      DMA_CHANNEL5,
-      NVIC_DMA1_CHANNEL5_IRQ,
-      DMA_CHANNEL6,
-      NVIC_DMA1_CHANNEL6_IRQ,
-      USART1,
-      reinterpret_cast<uint32_t>(&USART1_DR),
-      NVIC_USART1_IRQ
-    };
+  // auto esp8266_wlan_driver_cfg = drivers::esp8266::WlanHwCfg{
+  //     DMA1, 
+  //     DMA_CHANNEL5,
+  //     NVIC_DMA1_CHANNEL5_IRQ,
+  //     DMA_CHANNEL6,
+  //     NVIC_DMA1_CHANNEL6_IRQ,
+  //     USART1,
+  //     reinterpret_cast<uint32_t>(&USART1_DR),
+  //     NVIC_USART1_IRQ
+  //   };
   
   drivers::esp8266::init(esp8266_wlan_driver_cfg);
   // drivers::esp8266::connect_ap("asda", "Asd");
