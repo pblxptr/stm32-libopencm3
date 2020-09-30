@@ -1,6 +1,7 @@
 set(SOURCES
   # src/main.cpp
   src/main_test.cpp
+  # src/main_test_master.cpp
   # src/server.cpp
 )
 
