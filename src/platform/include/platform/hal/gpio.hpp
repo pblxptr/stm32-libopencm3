@@ -2,7 +2,7 @@
 
 #include<plt_hal_gpio.hpp>
 #include<plt_hal_gpio_t.hpp>
-#include <drivers/gpio.hpp>
+#include<drivers/gpio.hpp>
 
 namespace platform::hal::gpio
 {
