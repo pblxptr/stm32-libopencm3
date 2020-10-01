@@ -5,4 +5,5 @@
 namespace platform::config
 {
   constexpr uint32_t LED_GPIO = 0; 
+  constexpr uint32_t RED_LED_GPIO = 1;
 }
