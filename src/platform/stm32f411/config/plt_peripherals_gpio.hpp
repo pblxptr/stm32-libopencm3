@@ -7,9 +7,8 @@ extern "C" {
 
 #include <drivers/gpio.hpp>
 
-namespace platform::peripherals::gpio
-{
-  constexpr drivers::gpio::Pinout gpios[] = {
+namespace {
+  constexpr drivers::gpio::Pinout GPIOS[] = {
     {
       GPIOC,
       GPIO13
@@ -19,4 +18,17 @@ namespace platform::peripherals::gpio
       GPIO2
     }
   };
+}
+
+namespace platform::peripherals::gpio
+{
+  constexpr auto gpios() 
+  {
+    return GPIOS;
+  }
+
+  constexpr auto gpios_num()
+  {
+    return sizeof(GPIOS) / sizeof(GPIOS[0]);
+  }
 }

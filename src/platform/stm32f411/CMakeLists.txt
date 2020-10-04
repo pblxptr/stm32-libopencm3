@@ -1,6 +1,7 @@
 
 set(SOURCES
   hal/plt_hal_gpio.cpp
+  hal/plt_hal_uart.cpp
 )
 
 add_library(${PLATFORM_BIN} STATIC ${SOURCES})

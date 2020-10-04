@@ -1,13 +1,13 @@
 #pragma once
 
-#include <drivers/gpio.hpp>
-#include <platform/hal/gpio.hpp>
+#include<drivers/gpio.hpp>
+#include<platform/hal/gpio.hpp>
 
 namespace hal::gpio
 {
   void init()
   {
-    platform::hal::gpio::init();
+    // platform::hal::gpio::init();
   }
 
   void setup(const drivers::gpio::GpioDriver& gpio)
