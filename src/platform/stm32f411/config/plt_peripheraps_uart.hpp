@@ -4,12 +4,14 @@ extern "C" {
   #include <libopencm3/stm32/usart.h>
 }
 
+namespace {
 constexpr uint32_t UARTS[] = {
   USART1,
   USART2,
   USART3,
   UART4
 };
+}
 
 namespace platform::peripherals::uart
 {

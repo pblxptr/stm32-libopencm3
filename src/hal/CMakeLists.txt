@@ -1,5 +1,5 @@
 set(SOURCES
-  src/dummy.cpp
+  # src/dummy.cpp
   src/uart.cpp
 )
 

@@ -44,6 +44,18 @@ int main()
 
 #else 
 
+void rx_completed([[maybe_unused]]drivers::uart::UartDriver2* driver)
+{
+
+}
+
+void rx_ended([[maybe_unused]]drivers::uart::UartDriver2* driver)
+{
+
+}
+
+
+
 int main()
 {
   // //Template
@@ -62,42 +74,29 @@ int main()
   hal::gpio::clear_t<decltype(gpio1)>();
 
   //UART
-  constexpr auto serial1_id = platform::peripherals::get_uart_config<platform::config::SERIAL1>();
+  // constexpr auto serial1_id = platform::peripherals::get_uart_config<platform::config::SERIAL1>();
   constexpr auto serial1_config = drivers::uart::StaticUartConfig<
+    (uint32_t)USART1,
     drivers::uart::Mode::RX_TX,
     drivers::uart::Baudrate::B_9600,
     drivers::uart::DataBits::D_8,
     drivers::uart::StopBits::S_1,
     drivers::uart::Parity::NONE,
     drivers::uart::FlowControl::NONE
-  >{};
-  auto serial1_driver = drivers::uart::StaticUartDriver<
-    serial1_id
   >{};
 
-  constexpr auto serial2_id = platform::peripherals::get_uart_config<platform::config::SERIAL2>();
-  constexpr auto serial2_config = drivers::uart::StaticUartConfig<
-    drivers::uart::Mode::RX_TX,
-    drivers::uart::Baudrate::B_9600,
-    drivers::uart::DataBits::D_8,
-    drivers::uart::StopBits::S_1,
-    drivers::uart::Parity::NONE,
-    drivers::uart::FlowControl::NONE
-  >{};
-  auto serial2_driver = drivers::uart::StaticUartDriver<
-    serial2_id
-  >{};
+  uint8_t buffer[64];
+  const size_t buffer_size = sizeof(buffer) / sizeof(buffer[0]);
 
   //Init & setup
   hal::uart::init();
-  hal::uart::setup<decltype(serial1_driver), decltype(serial1_config)>();
-  hal::uart::setup<decltype(serial2_driver), decltype(serial2_config)>();
+  auto driver = hal::uart::setup<decltype(serial1_config)>();
+  driver->rx_completed_cb = rx_completed;
+  driver->rx_end_cb = rx_ended;
+  
+  hal::uart::receive(driver, buffer_size);
 
   //Receive
-  using Serial1type = decltype(serial1_driver);
-  uint8_t buffer[64];
-  constexpr size_t buff_size = sizeof(buffer);
-  hal::uart::receive_poll<Serial1type::uart_id>(&serial1_driver, buffer, buff_size);
 
   while(1)
   {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <type_traits>
 
 namespace drivers::uart
 {
@@ -11,27 +12,15 @@ namespace drivers::uart
   enum class Parity : uint8_t { EVEN, ODD, NONE };
   enum class FlowControl : uint8_t { RTS, CTS, RTS_CTS, NONE };
 
-  using Buffer_ptr_t = uint8_t*;
+  struct UartDriver2;
 
-  struct UartConfig 
-  {
-    Mode mode;
-    Baudrate baudrate;
-    DataBits data_bits;
-    StopBits stop_bits;
-    Parity partiy;
-    FlowControl flow_control;
-  };
-
-  struct UartDriver 
-  {
-    using RxData_t = uint8_t;
-
-    uint32_t id;
-  };
+  using buffer_ptr_t = uint8_t*;
+  using rx_completed_t = std::add_pointer_t<void(UartDriver2* ctx)>;
+  using rx_end_t = std::add_pointer_t<void(UartDriver2* ctx)>;
 
   //Template version
   template<
+    auto _uart_id,
     Mode _mode,
     Baudrate _baudrate,
     DataBits _databits,
@@ -41,6 +30,7 @@ namespace drivers::uart
   >
   struct StaticUartConfig 
   {
+    static constexpr uint32_t uart_id = _uart_id;
     static constexpr Mode mode = _mode;
     static constexpr Baudrate baudrate = _baudrate;
     static constexpr DataBits databits = _databits;
@@ -49,11 +39,10 @@ namespace drivers::uart
     static constexpr FlowControl flow_control = _flow_control;
   };
 
-  template<
-    uint32_t _uart_id
-  >
-  struct StaticUartDriver
+  struct UartDriver2
   {
-    static constexpr uint32_t uart_id = _uart_id;
+    uint32_t uart_id;
+    rx_completed_t rx_completed_cb;
+    rx_end_t rx_end_cb;
   };
 }
