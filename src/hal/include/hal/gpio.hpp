@@ -7,7 +7,7 @@ namespace hal::gpio
 {
   void init()
   {
-    // platform::hal::gpio::init();
+    platform::hal::gpio::init();
   }
 
   void setup(const drivers::gpio::GpioDriver& gpio)

@@ -11,7 +11,10 @@ namespace {
 
 namespace hal::uart
 {
-  void init();
+  inline void init()
+  {
+    platform::hal::uart::init();
+  }
 
   template<class TConfig>
   UartDriver2* setup()
@@ -19,9 +22,8 @@ namespace hal::uart
     return platform::hal::uart::setup<TConfig>();
   }
   
-  inline void receive(UartDriver2* driver, size_t sz) 
+  inline void receive(UartDriver2* driver, uint8_t* buffer, size_t sz) 
   {
-    uint8_t buff[100];
-    platform::hal::uart::receive(driver, buff, sz);
+    platform::hal::uart::receive(driver, buffer, sz);
   }
 }

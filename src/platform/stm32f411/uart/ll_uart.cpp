@@ -12,17 +12,20 @@ namespace platform::ll_drivers::uart
 }
 
 extern "C" {
-  __attribute__((naked)) void usart1_isr()
+  void usart1_isr()
   {
     using namespace platform::ll_drivers::uart;
 
     auto* uart = &uart1;
 
+    //TODO: Enhance flag clearing
+
+    [[maybe_unused]] auto cr = USART1_SR;
+    [[maybe_unused]] auto dr = USART1_DR;
+
     if (uart->fwd_isr != nullptr)
     {
       uart->fwd_isr(uart->fwd_isr_ctx);
     }
-
-    //TODO: Clean after interrutp 
   }
 }

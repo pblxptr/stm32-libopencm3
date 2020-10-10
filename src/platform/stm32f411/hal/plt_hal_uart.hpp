@@ -25,7 +25,12 @@ namespace platform::hal::uart
 { 
   inline void _hal_handle_uart_isr([[maybe_unused]] void* ctx)
   {
+    [[maybe_unused]] auto x = 10;
+  }
 
+  inline void init()
+  {
+    rcc_periph_clock_enable(RCC_USART1);
   }
 
   template<class TConfig>
@@ -36,7 +41,7 @@ namespace platform::hal::uart
     static_assert(Config::uart_id == USART1);
 
     //Configure GPIO for UART //TODO: Currently hardcoded for USART1
-    platform::ll_drivers::uart::configure_gpio<USART1>();
+    platform::ll_drivers::uart::configure_gpio<Config::uart_id>();
 
     //Configure mode
     constexpr auto mode = get_mode<Config::mode>();
@@ -68,12 +73,13 @@ namespace platform::hal::uart
     static_assert(flow_control != platform::hal::uart::INVALID_FLOW_CONTROL);
     usart_set_flow_control(Config::uart_id, flow_control);
 
-    //Configure interrupts
+    //Configure interrupts TODO: Interrupts are enabled when recive is called, function below just enable interrupt in NVIC
     platform::ll_drivers::uart::configure_interrupts<Config::uart_id>();
 
     //Get driver 
     constexpr auto* driver = platform::ll_drivers::uart::get_driver<Config::uart_id>();
     static_assert(driver != nullptr, "Invalid driver selected. Possibly not yet implemented");
+    driver->uart_id = Config::uart_id;
     driver->fwd_isr = _hal_handle_uart_isr;
     driver->fwd_isr_ctx = driver;
 
@@ -86,7 +92,6 @@ namespace platform::hal::uart
   inline void receive(drivers::uart::UartDriver2* driver, uint8_t* buff, size_t sz)
   {
     auto* stm_driver = reinterpret_cast<STM32UartDriver*>(driver); //TODO: Temp solution. Avoid downcasting
-
     // if (stm_driver->rx_end_cb != nullptr)
     // {
     //   //TODO: Enable idle interrupt
@@ -97,10 +102,13 @@ namespace platform::hal::uart
     //   //TODO: Enable interrupt ex
     // }
 
+    usart_disable(stm_driver->uart_id);
     dma_disable_stream(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream);
-    dma_set_memory_address(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream, reinterpret_cast<uint32_t>(buff));
+    dma_set_memory_address(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream, (uint32_t) buff);
     dma_set_number_of_data(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream, sz);
+    dma_enable_transfer_complete_interrupt(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream);
     dma_enable_stream(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream);
     usart_enable_rx_dma(stm_driver->uart_id);
+    usart_enable(stm_driver->uart_id);
   }
 }

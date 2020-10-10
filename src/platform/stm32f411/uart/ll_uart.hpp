@@ -23,8 +23,8 @@ namespace platform::ll_drivers::uart
   template<>
   inline void configure_gpio<USART1>()
   {
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO2);
-	  gpio_set_af(GPIOA, GPIO_AF7, GPIO1 | GPIO2);
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
+	  gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
   }
 
   template<>
@@ -36,21 +36,25 @@ namespace platform::ll_drivers::uart
   template<>
   inline void configure_dma<USART1>(STM32UartDriver* driver)
   {
+    //Enable peripheral clock
     rcc_periph_clock_enable(RCC_DMA2);
+
+    //Enable nvic interrupt for dma stream
     nvic_enable_irq(NVIC_DMA2_STREAM2_IRQ);
+    
+    //Configure dma
     dma_stream_reset(DMA2, DMA_STREAM2);
+    dma_set_peripheral_address(DMA2, DMA_STREAM2, (uint32_t) &USART1_DR);
+    dma_channel_select(DMA2, DMA_STREAM2, DMA_SxCR_CHSEL_4);
     dma_set_priority(DMA2, DMA_STREAM2, DMA_SxCR_PL_MEDIUM);
     dma_set_memory_size(DMA2, DMA_STREAM2, DMA_SxCR_MSIZE_8BIT);
     dma_set_peripheral_size(DMA2, DMA_STREAM2, DMA_SxCR_PSIZE_8BIT);
     dma_enable_memory_increment_mode(DMA2, DMA_STREAM2);
     dma_enable_circular_mode(DMA2, DMA_STREAM2);
     dma_set_transfer_mode(DMA2, DMA_STREAM2, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
-    dma_set_peripheral_address(DMA2, DMA_STREAM2, reinterpret_cast<uint32_t>(&USART1_DR));
-    dma_enable_transfer_complete_interrupt(DMA1, DMA_STREAM2);
-    dma_channel_select(DMA2, DMA_STREAM2, DMA_SxCR_CHSEL_4);
 
-    driver->rx_dma = &platform::ll_drivers::dma::dma2_stream5;
-    driver->tx_dma = &platform::ll_drivers::dma::dma2_stream6;
+    //Assing dma channel handler
+    driver->rx_dma = &platform::ll_drivers::dma::dma2_stream2;
   }
 
   template<>

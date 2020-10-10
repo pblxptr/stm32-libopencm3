@@ -5,8 +5,4 @@
 
 namespace hal::uart
 { 
-  void init()
-  {
-
-  }
 }
