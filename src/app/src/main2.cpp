@@ -6,62 +6,36 @@
 #include <platform/peripherals.hpp>
 
 
-#define use_static
-
-#ifndef use_static
-int main()
-{
-  //GPIO
-  constexpr auto pinout1 = platform::peripherals::get_gpio_config<platform::config::LED_GPIO>();
-  [[maybe_unused]]constexpr auto gpio1 = drivers::gpio::GpioDriver{
-    pinout1,
-    drivers::gpio::Mode::OUTPUT,
-    drivers::gpio::PullUpDown::PULLUP
-  };
-
-  hal::gpio::init();
-  hal::gpio::setup(gpio1);
-
-  hal::gpio::set(gpio1);
-  hal::gpio::clear(gpio1);
-}
-
-#else 
-
-void rx_completed([[maybe_unused]]drivers::uart::UartDriver2* driver)
-{
-  [[maybe_unused]] int x = 10;
-}
-
-void rx_ended([[maybe_unused]]drivers::uart::UartDriver2* driver)
-{
-  [[maybe_unused]] int x = 10;
-}
-
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
 volatile int x = 10;
 
+
+drivers::uart::UartDriver* driver = nullptr;
+void rx_completed([[maybe_unused]]drivers::uart::UartDriver* driver)
+{
+  [[maybe_unused]] int x = 10;
+}
+
+void rx_ended([[maybe_unused]]drivers::uart::UartDriver* driver)
+{
+  [[maybe_unused]] int x = 10;
+}
+
 int main()
 {
-  // //Template
-  constexpr auto pinout1 = platform::peripherals::get_gpio_config<platform::config::LED_GPIO>();
-  constexpr auto gpio1 = drivers::gpio::StaticGpioDriver<
-    pinout1.port, 
-    pinout1.pin,
+  constexpr auto blue_led_config = drivers::gpio::GpioDriverConfig<
+    platform::config::BLUE_LED_GPIO,
     drivers::gpio::Mode::OUTPUT,
     drivers::gpio::PullUpDown::PULLUP
   >{};
-  
+
   hal::gpio::init();
-  hal::gpio::setup_t<decltype(gpio1)>();
-  
-  hal::gpio::set_t<decltype(gpio1)>();
-  hal::gpio::clear_t<decltype(gpio1)>();
+  auto led_driver = hal::gpio::setup<decltype(blue_led_config)>();
 
   //UART
-  constexpr auto serial1_config = drivers::uart::StaticUartConfig<
-    (uint32_t)USART1,
+  constexpr auto serial1_config = drivers::uart::UartDriverConfig<
+    platform::config::SERIAL1,
     drivers::uart::Mode::RX_TX,
     drivers::uart::Baudrate::B_9600,
     drivers::uart::DataBits::D_8,
@@ -75,7 +49,7 @@ int main()
 
   // //Init & setup
   hal::uart::init();
-  auto driver = hal::uart::setup<decltype(serial1_config)>();
+  driver = hal::uart::setup<decltype(serial1_config)>();
   driver->rx_completed_cb = rx_completed;
   driver->rx_end_cb = rx_ended;
   
@@ -89,5 +63,3 @@ int main()
     }
   }
 }
-
-#endif

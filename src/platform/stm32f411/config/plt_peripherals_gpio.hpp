@@ -8,7 +8,7 @@ extern "C" {
 #include <drivers/gpio.hpp>
 
 namespace {
-  constexpr drivers::gpio::Pinout GPIOS[] = {
+  constexpr drivers::gpio::HwGpioConfig GPIOS[] = {
     {
       GPIOC,
       GPIO13

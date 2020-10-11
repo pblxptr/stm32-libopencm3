@@ -83,7 +83,7 @@ namespace platform::ll_drivers::uart
       return platform::hal::uart::INVALID_FLOW_CONTROL;
   }
 
-  struct STM32UartDriver : drivers::uart::UartDriver2
+  struct STM32UartDriver : drivers::uart::UartDriver
   {
     using uart_irq_t = void(*)(void*);
 

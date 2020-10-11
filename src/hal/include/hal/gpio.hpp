@@ -10,37 +10,58 @@ namespace hal::gpio
     platform::hal::gpio::init();
   }
 
-  void setup(const drivers::gpio::GpioDriver& gpio)
+  template<class TConfig>
+  drivers::gpio::GpioDriver* setup()
   {
-    platform::hal::gpio::setup(gpio);
+    return platform::hal::gpio::setup<TConfig>();
   }
 
-  void set(const drivers::gpio::GpioDriver& gpio)
+  void set(drivers::gpio::GpioDriver* driver)
   {
-    platform::hal::gpio::set(gpio);
+    platform::hal::gpio::set(driver);
   }
 
-  void clear(const drivers::gpio::GpioDriver& gpio)
+  void toggle(drivers::gpio::GpioDriver* driver)
   {
-    platform::hal::gpio::clear(gpio);
+    platform::hal::gpio::toggle(driver);
   }
+
+  void clear(drivers::gpio::GpioDriver* driver)
+  {
+    platform::hal::gpio::clear(driver);
+  }
+
+  // void setup(const drivers::gpio::GpioDriver& gpio)
+  // {
+  //   platform::hal::gpio::setup(gpio);
+  // }
+
+  // void set(const drivers::gpio::GpioDriver& gpio)
+  // {
+  //   platform::hal::gpio::set(gpio);
+  // }
+
+  // void clear(const drivers::gpio::GpioDriver& gpio)
+  // {
+  //   platform::hal::gpio::clear(gpio);
+  // }
   
-  //Template version
-  template<class TGpioDriver> 
-  void setup_t()
-  {
-    platform::hal::gpio::setup_t<TGpioDriver>();
-  }
+  // //Template version
+  // template<class TGpioDriver> 
+  // void setup_t()
+  // {
+  //   platform::hal::gpio::setup_t<TGpioDriver>();
+  // }
 
-  template<class TGpioDriver> 
-  void set_t()
-  {
-    platform::hal::gpio::set_t<TGpioDriver>();
-  }
+  // template<class TGpioDriver> 
+  // void set_t()
+  // {
+  //   platform::hal::gpio::set_t<TGpioDriver>();
+  // }
 
-  template<class TGpioDriver> 
-  void clear_t()
-  {
-    platform::hal::gpio::clear_t<TGpioDriver>();
-  }
+  // template<class TGpioDriver> 
+  // void clear_t()
+  // {
+  //   platform::hal::gpio::clear_t<TGpioDriver>();
+  // }
 }

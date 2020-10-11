@@ -34,7 +34,7 @@ namespace platform::hal::uart
   }
 
   template<class TConfig>
-  UartDriver2* setup()
+  UartDriver* setup()
   {
     using Config = TConfig;
 
@@ -89,24 +89,28 @@ namespace platform::hal::uart
     return driver;
   }
 
-  inline void receive(drivers::uart::UartDriver2* driver, uint8_t* buff, size_t sz)
+  inline void receive(drivers::uart::UartDriver* driver, uint8_t* buff, size_t sz)
   {
     auto* stm_driver = reinterpret_cast<STM32UartDriver*>(driver); //TODO: Temp solution. Avoid downcasting
-    // if (stm_driver->rx_end_cb != nullptr)
-    // {
-    //   //TODO: Enable idle interrupt
-    // }
-
-    // if (stm_driver->rx_every_byte != nullptr)
-    // {
-    //   //TODO: Enable interrupt ex
-    // }
 
     usart_disable(stm_driver->uart_id);
     dma_disable_stream(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream);
     dma_set_memory_address(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream, (uint32_t) buff);
     dma_set_number_of_data(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream, sz);
     dma_enable_transfer_complete_interrupt(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream);
+    
+    //Interrupt when every character is received
+    if (stm_driver->rx_char_received_cb != nullptr)
+    {
+      USART_CR1(stm_driver->uart_id) |= USART_CR1_RXNEIE;
+    }
+
+    //Interrupt when line is idle
+    if (stm_driver->rx_end_cb != nullptr)
+    {
+      USART_CR1(stm_driver->uart_id) |= USART_CR1_IDLEIE;
+    }
+    
     dma_enable_stream(stm_driver->rx_dma->dma, stm_driver->rx_dma->stream);
     usart_enable_rx_dma(stm_driver->uart_id);
     usart_enable(stm_driver->uart_id);

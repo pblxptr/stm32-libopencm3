@@ -12,11 +12,12 @@ namespace drivers::uart
   enum class Parity : uint8_t { EVEN, ODD, NONE };
   enum class FlowControl : uint8_t { RTS, CTS, RTS_CTS, NONE };
 
-  struct UartDriver2;
+  struct UartDriver;
 
   using buffer_ptr_t = uint8_t*;
-  using rx_completed_t = std::add_pointer_t<void(UartDriver2* ctx)>;
-  using rx_end_t = std::add_pointer_t<void(UartDriver2* ctx)>;
+  using rx_completed_t = std::add_pointer_t<void(UartDriver* ctx)>;
+  using rx_end_t = std::add_pointer_t<void(UartDriver* ctx)>;
+  using rx_char_received_t = std::add_pointer_t<void(UartDriver* ctx)>;
 
   //Template version
   template<
@@ -28,7 +29,7 @@ namespace drivers::uart
     Parity _parity,
     FlowControl _flow_control
   >
-  struct StaticUartConfig 
+  struct UartDriverConfig 
   {
     static constexpr uint32_t uart_id = _uart_id;
     static constexpr Mode mode = _mode;
@@ -39,10 +40,11 @@ namespace drivers::uart
     static constexpr FlowControl flow_control = _flow_control;
   };
 
-  struct UartDriver2
+  struct UartDriver
   {
     uint32_t uart_id;
     rx_completed_t rx_completed_cb;
     rx_end_t rx_end_cb;
+    rx_char_received_t rx_char_received_cb;
   };
 }

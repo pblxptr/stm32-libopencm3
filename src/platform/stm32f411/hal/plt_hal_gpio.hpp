@@ -1,75 +1,85 @@
-// #pragma once
+#pragma once
 
-// extern "C" {
-//   #include <libopencm3/stm32/gpio.h>
-//   #include <libopencm3/stm32/rcc.h>
-// }
+#include <drivers/gpio.hpp>
+#include <ll_gpio.hpp>
 
-// #include <drivers/gpio.hpp>
+extern "C" {
+  #include <libopencm3/stm32/gpio.h>
+  #include <libopencm3/stm32/rcc.h>
+}
 
-// namespace {
-//   auto convert_mode(const drivers::gpio::Mode& mode)
-//   {
-//     switch(mode)
-//     {
-//       case drivers::gpio::Mode::INPUT:
-//         return GPIO_MODE_INPUT;
+namespace 
+{
+  using namespace drivers::gpio;
 
-//       case drivers::gpio::Mode::OUTPUT:
-//         return GPIO_MODE_OUTPUT;
+  template<drivers::gpio::Mode Mode>
+  constexpr auto convert_mode()
+  {
+    if constexpr (Mode == drivers::gpio::Mode::INPUT)
+      return GPIO_MODE_INPUT;
+    else if constexpr (Mode == drivers::gpio::Mode::OUTPUT)
+      return GPIO_MODE_OUTPUT;
+    else if constexpr(Mode == drivers::gpio::Mode::ANALOG)
+      return GPIO_MODE_ANALOG;
+    else 
+      return GPIO_MODE_AF;
+  }
 
-//       case drivers::gpio::Mode::ANALOG:
-//         return GPIO_MODE_ANALOG;
+  template<drivers::gpio::PullUpDown PuPd>
+  constexpr auto convert_pupd()
+  {
+    if constexpr (PuPd == drivers::gpio::PullUpDown::PULLDOWN)
+      return GPIO_PUPD_PULLDOWN;
+    else if constexpr (PuPd == drivers::gpio::PullUpDown::PULLUP)
+      return GPIO_PUPD_PULLUP;
+    else 
+      return GPIO_PUPD_NONE;
+  }
+}
 
-//       case drivers::gpio::Mode::AF:
-//         return GPIO_MODE_AF;
-//     }
-//     return GPIO_MODE_INPUT;
-//   }
+namespace platform::hal::gpio
+{ 
+  inline void init()
+  {
+    rcc_periph_clock_enable(RCC_GPIOA);
+    rcc_periph_clock_enable(RCC_GPIOB);
+    rcc_periph_clock_enable(RCC_GPIOC);
+    rcc_periph_clock_enable(RCC_GPIOD);
+  }
 
-//   auto convert_plup_pldown(const drivers::gpio::PullUpDown& puppd)
-//   {
-//     switch (puppd)
-//     {
-//       case drivers::gpio::PullUpDown::NONE:
-//         return GPIO_PUPD_NONE;
+  template<class TConfig>
+  GpioDriver* setup()
+  {
+    using Config = TConfig;
 
-//       case drivers::gpio::PullUpDown::PULLDOWN:
-//         return GPIO_PUPD_PULLDOWN;
-      
-//       case drivers::gpio::PullUpDown::PULLUP:
-//         return GPIO_PUPD_PULLUP;
-//     }
+    //Get driver
+    constexpr auto* driver = platform::ll_drivers::gpio::get_driver<Config::gpio_id>();
+    static_assert(driver != nullptr);
 
-//     return GPIO_PUPD_NONE;
-//   }
-// }
+    //Set mode
+    gpio_mode_setup(
+      driver->port_, 
+      convert_mode<Config::mode>(),
+      convert_pupd<Config::pupd>(),
+      driver->pin_
+    );
 
-// namespace platform::hal::gpio
-// {
-//   inline void init()
-//   {
-//     rcc_periph_clock_enable(RCC_GPIOA);
-//     rcc_periph_clock_enable(RCC_GPIOB);
-//     rcc_periph_clock_enable(RCC_GPIOC);
-//     rcc_periph_clock_enable(RCC_GPIOD);
-//   }
+    return driver;
+  }
 
-//   void setup(const drivers::gpio::GpioDriver& gpio)
-//   {
-//     const auto mode = convert_mode(gpio.mode);
-//     const auto pd = convert_plup_pldown(gpio.pd); 
+  void set(GpioDriver* driver)
+  {
+    gpio_set(driver->port_, driver->pin_);
+  }
 
-//     gpio_mode_setup(gpio.pinout.port, mode, pd, gpio.pinout.pin);
-//   }
+  void toggle(GpioDriver* driver)
+  {
+    gpio_toggle(driver->port_, driver->pin_);
+  }
 
-//   void set(const drivers::gpio::GpioDriver& gpio)
-//   {
-//     gpio_set(gpio.pinout.port, gpio.pinout.pin);
-//   }
-
-//   void clear(const drivers::gpio::GpioDriver& gpio)
-//   {
-//     gpio_clear(gpio.pinout.port, gpio.pinout.pin);
-//   }
-// }
+  void clear(GpioDriver* driver)
+  {
+    gpio_clear(driver->port_, driver->pin_);
+  }
+  
+}
