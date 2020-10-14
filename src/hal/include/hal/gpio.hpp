@@ -11,7 +11,7 @@ namespace hal::gpio
   }
 
   template<class TConfig>
-  drivers::gpio::GpioDriver* setup()
+  constexpr drivers::gpio::GpioDriver* setup()
   {
     return platform::hal::gpio::setup<TConfig>();
   }
@@ -30,38 +30,4 @@ namespace hal::gpio
   {
     platform::hal::gpio::clear(driver);
   }
-
-  // void setup(const drivers::gpio::GpioDriver& gpio)
-  // {
-  //   platform::hal::gpio::setup(gpio);
-  // }
-
-  // void set(const drivers::gpio::GpioDriver& gpio)
-  // {
-  //   platform::hal::gpio::set(gpio);
-  // }
-
-  // void clear(const drivers::gpio::GpioDriver& gpio)
-  // {
-  //   platform::hal::gpio::clear(gpio);
-  // }
-  
-  // //Template version
-  // template<class TGpioDriver> 
-  // void setup_t()
-  // {
-  //   platform::hal::gpio::setup_t<TGpioDriver>();
-  // }
-
-  // template<class TGpioDriver> 
-  // void set_t()
-  // {
-  //   platform::hal::gpio::set_t<TGpioDriver>();
-  // }
-
-  // template<class TGpioDriver> 
-  // void clear_t()
-  // {
-  //   platform::hal::gpio::clear_t<TGpioDriver>();
-  // }
 }

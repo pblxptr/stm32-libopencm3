@@ -9,11 +9,12 @@ namespace {
 
 namespace platform::ll_drivers::gpio
 {
-  extern GpioDriver drivers[];
+  constexpr uint32_t number_of_gpios = 4; //TODO: MOve to config
+  extern GpioDriver gpios[number_of_gpios];
 
   template<uint32_t GPIO_ID>
   constexpr GpioDriver* get_driver()
   {
-    return &drivers[GPIO_ID];
+    return &gpios[GPIO_ID];
   }
 }

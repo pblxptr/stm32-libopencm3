@@ -83,16 +83,17 @@ namespace platform::ll_drivers::uart
       return platform::hal::uart::INVALID_FLOW_CONTROL;
   }
 
+  using uart_flags_t = uint32_t;
+  using uart_irq_t = void(*)(void*, uart_flags_t);
+
   struct STM32UartDriver : drivers::uart::UartDriver
   {
-    using uart_irq_t = void(*)(void*);
-
     platform::ll_drivers::dma::DmaStream* rx_dma;
     platform::ll_drivers::dma::DmaStream* tx_dma;
     uart_irq_t fwd_isr;
     void* fwd_isr_ctx;
 
-    STM32UartDriver()
+    STM32UartDriver() //TODO: Add id to contructor
       : rx_dma{nullptr}
       , tx_dma{nullptr}
       , fwd_isr{nullptr}
@@ -100,13 +101,13 @@ namespace platform::ll_drivers::uart
   };
 
   template<uint32_t UART_ID>
-  void configure_gpio();
+  void configure_uart_gpio();
 
   template<uint32_t UART_ID>
   void configure_interrupts();
 
   template<uint32_t UART_ID>
-  void configure_dma(STM32UartDriver*);
+  void configure_uart_dma(STM32UartDriver*);
 
   template<uint32_t UART_ID>
   constexpr STM32UartDriver* get_driver();

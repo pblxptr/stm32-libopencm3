@@ -4,7 +4,8 @@
 
 namespace platform::ll_drivers::dma
 {
-  using dma_irq_t = void(*)(void*);
+  using dma_flags_t = uint32_t;
+  using dma_irq_t = void(*)(void*, dma_flags_t);
 
   struct DmaStream
   {
@@ -22,4 +23,5 @@ namespace platform::ll_drivers::dma
 
   //TODO: Only for uart1
   extern DmaStream dma2_stream2;
+  extern DmaStream dma2_stream7;
 }

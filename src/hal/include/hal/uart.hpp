@@ -26,4 +26,9 @@ namespace hal::uart
   {
     platform::hal::uart::receive(driver, buffer, sz);
   }
+
+  inline void send(UartDriver* driver, uint8_t* buffer, size_t sz)
+  {
+    platform::hal::uart::send(driver, buffer, sz);
+  }
 }

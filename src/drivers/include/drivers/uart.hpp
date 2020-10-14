@@ -15,9 +15,11 @@ namespace drivers::uart
   struct UartDriver;
 
   using buffer_ptr_t = uint8_t*;
-  using rx_completed_t = std::add_pointer_t<void(UartDriver* ctx)>;
-  using rx_end_t = std::add_pointer_t<void(UartDriver* ctx)>;
-  using rx_char_received_t = std::add_pointer_t<void(UartDriver* ctx)>;
+  using rx_completed_t = std::add_pointer_t<void(UartDriver*)>;
+  using rx_end_t = std::add_pointer_t<void(UartDriver*)>;
+  using rx_char_received_t = std::add_pointer_t<void(UartDriver*)>;
+
+  using tx_completed_t = std::add_pointer_t<void(UartDriver*)>;
 
   //Template version
   template<
@@ -40,11 +42,19 @@ namespace drivers::uart
     static constexpr FlowControl flow_control = _flow_control;
   };
 
+  enum class UartState { IDLE, ACTIVE };
+
   struct UartDriver
   {
     uint32_t uart_id;
+    //RX
+    UartState rx_state;
     rx_completed_t rx_completed_cb;
     rx_end_t rx_end_cb;
-    rx_char_received_t rx_char_received_cb;
+    //TX
+    UartState tx_state;
+    tx_completed_t tx_completed_cb;
+
+    // rx_char_received_t rx_char_received_cb; //TODO: Can it be used when using DMA?
   };
 }
