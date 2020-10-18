@@ -22,7 +22,7 @@ namespace utils::containers
     return capacity_;
   }
 
-  void RingBuffer::write(uint8_t data)
+  void RingBuffer::write(const uint8_t data)
   {
     buff_[head_++ % buffSize_] = data;
 
@@ -32,7 +32,7 @@ namespace utils::containers
     }
   }
 
-  void RingBuffer::write(uint8_t* data, size_t len)
+  void RingBuffer::write(const uint8_t* data, const size_t len)
   {
     for (size_t i = 0; i < len; i++)
       write(*data++);

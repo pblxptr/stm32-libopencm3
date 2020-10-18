@@ -21,7 +21,7 @@ namespace {
   using namespace platform::ll_drivers::dma;
   
   template<class T>
-  static inline void check_and_call(T* func_ptr, UartDriver* ctx)
+  static inline void check_and_call(T* func_ptr, void* ctx)
   {
     if (func_ptr != nullptr)
     {
@@ -40,7 +40,7 @@ namespace platform::hal::uart
     if (flags & DMA_TCIF)
     {
       driver->rx_state = UartState::IDLE;
-      check_and_call(driver->rx_completed_cb, driver);
+      check_and_call(driver->rx_completed_cb, driver->rx_event_ctx);
     }
     //Todo: Add error handling
   }
@@ -53,7 +53,7 @@ namespace platform::hal::uart
     if (flags & DMA_TCIF)
     {
       driver->tx_state = UartState::IDLE;
-      check_and_call(driver->tx_completed_cb, driver);
+      check_and_call(driver->tx_completed_cb, driver->tx_event_ctx);
     }
   }
 
@@ -61,11 +61,13 @@ namespace platform::hal::uart
   {
     STM32UartDriver* driver = reinterpret_cast<STM32UartDriver*>(ctx);
     
+    volatile const uint16_t nbytes = dma_get_number_of_data(driver->rx_dma->dma, driver->rx_dma->stream);
+
     //Uart is idle
     if (flags & USART_FLAG_IDLE)
     {
       driver->rx_state = UartState::IDLE;
-      check_and_call(driver->rx_end_cb, driver);
+      check_and_call(driver->rx_end_cb, driver->rx_event_ctx);
     }
     //Todo: Add error handling
   }

@@ -6,7 +6,7 @@
 namespace drivers::uart
 {
   enum class Mode : uint8_t { RX, TX, RX_TX };
-  enum class Baudrate : uint8_t { B_9600, B_11200 };
+  enum class Baudrate : uint8_t { B_9600, B_115200 };
   enum class DataBits : uint8_t { D_8, D_9 };
   enum class StopBits : uint8_t { S_1 };
   enum class Parity : uint8_t { EVEN, ODD, NONE };
@@ -17,7 +17,6 @@ namespace drivers::uart
   using buffer_ptr_t = uint8_t*;
   using rx_completed_t = std::add_pointer_t<void(void*)>;
   using rx_end_t = std::add_pointer_t<void(void*)>;
-  using rx_char_received_t = std::add_pointer_t<void(void*)>;
 
   using tx_completed_t = std::add_pointer_t<void(void*)>;
 
@@ -49,12 +48,15 @@ namespace drivers::uart
     uint32_t uart_id;
     //RX
     UartState rx_state;
+    //RX -> events
     rx_completed_t rx_completed_cb;
     rx_end_t rx_end_cb;
+    void* rx_event_ctx;
+    
     //TX
     UartState tx_state;
+    //TX -> events
     tx_completed_t tx_completed_cb;
-
-    // rx_char_received_t rx_char_received_cb; //TODO: Can it be used when using DMA?
+    void* tx_event_ctx;
   };
 }

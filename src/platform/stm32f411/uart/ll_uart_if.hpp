@@ -29,8 +29,8 @@ namespace platform::ll_drivers::uart
   {
     if constexpr(baudrate == drivers::uart::Baudrate::B_9600)
       return 9600;
-    else if constexpr(baudrate == drivers::uart::Baudrate::B_11200)
-      return 11200;
+    else if constexpr(baudrate == drivers::uart::Baudrate::B_115200)
+      return 115200;
     else 
       return platform::hal::uart::INVALID_BAUDRATE;
   }

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string_view>
 #include <console_print.hpp>
+#include <devices/esp8266wlan.hpp>
 
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
@@ -38,6 +39,8 @@ void tx_completed([[maybe_unused]]drivers::uart::UartDriver* driver)
 }
 
 namespace console = utils::debug::console;
+
+using namespace devices::esp8266;
 
 int main()
 {
@@ -80,10 +83,10 @@ int main()
   hal::gpio::set(red_led3_driver);
 
   //Setup Esp8266 uart driver
-  constexpr auto serial1_config = drivers::uart::UartDriverConfig<
+  constexpr auto esp8266_uart_config = drivers::uart::UartDriverConfig<
     platform::config::SERIAL1,
     drivers::uart::Mode::RX_TX,
-    drivers::uart::Baudrate::B_9600,
+    drivers::uart::Baudrate::B_115200,
     drivers::uart::DataBits::D_8,
     drivers::uart::StopBits::S_1,
     drivers::uart::Parity::NONE,
@@ -104,12 +107,13 @@ int main()
   auto console_driver = hal::uart::setup<decltype(console_config)>();
   console::set_uart_driver(console_driver);
 
+  auto esp8266_uart_driver = hal::uart::setup<decltype(esp8266_uart_config)>();
+  auto esp8266_wlan = Esp8266Wlan{esp8266_uart_driver};
+
+
   while(1)
   {
-
-    if (x == 20)
-    {
-
-    }
+    console::task();
+    esp8266_wlan.task();
   }
 }

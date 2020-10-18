@@ -17,6 +17,7 @@ target_link_libraries(${APP_BIN}
   ${UTILS_BIN}
   ${PLATFORM_BIN}
   ${HAL_BIN}
+  ${DEVICES_BIN}
 )
 
 add_custom_command(TARGET ${APP_BIN} POST_BUILD

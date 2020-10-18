@@ -1,20 +1,20 @@
 #include <console_print.hpp>
+#include <ring_buffer.hpp>
 
 #include <algorithm>
 
 using namespace drivers::uart;
-
+using namespace utils::containers;
 
 namespace {
+  UartDriver* driver{nullptr};
   static constexpr size_t DEBUG_BUFFER_SIZE = 128;
-  static constexpr std::string_view endline = "\r\n";
-  static UartDriver* driver{nullptr};
-  static uint8_t buffer[DEBUG_BUFFER_SIZE];
-  volatile bool is_busy{false};
+  static uint8_t rb_buffer[DEBUG_BUFFER_SIZE];
+  static RingBuffer rb{rb_buffer, DEBUG_BUFFER_SIZE};
+  static uint8_t send_buffer[DEBUG_BUFFER_SIZE];
 
   void handle_sending_completed([[maybe_unused]] void* ctx)
   {
-    is_busy = false;
   }
 }
 namespace utils::debug::console
@@ -22,26 +22,40 @@ namespace utils::debug::console
   void set_uart_driver(drivers::uart::UartDriver* uart_driver)
   {
     driver = uart_driver;
-    driver->tx_completed_cb = handle_sending_completed;
+
+    print("Debug console configured.");
   }
   
   void print(const std::string_view sw)
   {
-    is_busy = true;
+    rb.write(reinterpret_cast<const uint8_t*>(sw.data()), sw.size());
+    rb.write('\r');
+    rb.write('\n');
+  }
 
-    const size_t nbytes = std::min(sw.size() + endline.size(), DEBUG_BUFFER_SIZE);
-    
-    std::fill_n(buffer, DEBUG_BUFFER_SIZE, '\0');
-    uint8_t* offset = buffer + nbytes - endline.size();
+  void print(const uint8_t* buffer, size_t sz)
+  {
+    rb.write(buffer, sz); 
+  }
 
-    for (size_t i = 0; i < endline.size(); ++i)
+  void task()
+  {
+    if (driver->tx_state == UartState::ACTIVE)
+      return;
+
+    const size_t capacity = rb.capacity();
+
+    if (capacity == 0)
     {
-      offset[i] = endline[i];
+      return;
     }
 
-    std::copy_n(sw.data(), nbytes - endline.size(), buffer);
-    hal::uart::send(driver, buffer, DEBUG_BUFFER_SIZE);
-    
-    while(is_busy);
+    std::fill_n(send_buffer, DEBUG_BUFFER_SIZE, '\0');
+    for (size_t i = 0; i < capacity; ++i)
+    {
+      send_buffer[i] = rb.read();
+    }
+
+    hal::uart::send(driver, send_buffer, DEBUG_BUFFER_SIZE);
   }
 }

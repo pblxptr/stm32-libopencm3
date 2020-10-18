@@ -9,4 +9,6 @@ namespace utils::debug::console
 {
   void set_uart_driver(drivers::uart::UartDriver*);
   void print(const std::string_view);
+  void print(const uint8_t*, size_t);
+  void task();
 }

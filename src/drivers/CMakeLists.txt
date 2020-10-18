@@ -1,5 +1,5 @@
 set(SOURCES
-  src/esp8266wlan.cpp
+  src/dummy.cpp
 )
 
 add_library(${DRIVERS_BIN} STATIC ${SOURCES})
