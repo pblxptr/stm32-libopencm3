@@ -6,6 +6,7 @@
 #include <platform/peripherals.hpp>
 #include <algorithm>
 #include <string_view>
+#include <console_print.hpp>
 
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
@@ -15,6 +16,8 @@ drivers::gpio::GpioDriver* blue_led_driver{nullptr};
 drivers::gpio::GpioDriver* red_led1_driver{nullptr};
 drivers::gpio::GpioDriver* red_led2_driver{nullptr};
 drivers::gpio::GpioDriver* red_led3_driver{nullptr};
+
+volatile bool busy{false};
 
 drivers::uart::UartDriver* driver{nullptr};
 
@@ -31,10 +34,17 @@ void rx_ended([[maybe_unused]]drivers::uart::UartDriver* driver)
 void tx_completed([[maybe_unused]]drivers::uart::UartDriver* driver)
 {
   hal::gpio::toggle(red_led3_driver); //when single character is received
+
 }
+
+namespace console = utils::debug::console;
 
 int main()
 {
+  // //Init & setup
+  hal::gpio::init();
+  hal::uart::init();
+
   constexpr auto blue_led_config = drivers::gpio::GpioDriverConfig<
     platform::config::BLUE_LED_GPIO,
     drivers::gpio::Mode::OUTPUT,
@@ -59,7 +69,6 @@ int main()
     drivers::gpio::PullUpDown::PULLUP
   >{};
 
-  hal::gpio::init();
   blue_led_driver = hal::gpio::setup<decltype(blue_led_config)>();
   red_led1_driver = hal::gpio::setup<decltype(red_led1_config)>();
   red_led2_driver = hal::gpio::setup<decltype(red_led2_config)>();
@@ -70,7 +79,7 @@ int main()
   hal::gpio::set(red_led2_driver);
   hal::gpio::set(red_led3_driver);
 
-  //UAR
+  //Setup Esp8266 uart driver
   constexpr auto serial1_config = drivers::uart::UartDriverConfig<
     platform::config::SERIAL1,
     drivers::uart::Mode::RX_TX,
@@ -81,32 +90,26 @@ int main()
     drivers::uart::FlowControl::NONE
   >{};
 
+  //Setup console
+  constexpr auto console_config = drivers::uart::UartDriverConfig<
+    platform::config::CONSOLE,
+    drivers::uart::Mode::RX_TX,
+    drivers::uart::Baudrate::B_9600,
+    drivers::uart::DataBits::D_8,
+    drivers::uart::StopBits::S_1,
+    drivers::uart::Parity::NONE,
+    drivers::uart::FlowControl::NONE
+  >{};
 
-
-  // //Init & setup
-  hal::uart::init();
-  driver = hal::uart::setup<decltype(serial1_config)>();
-  // driver->rx_completed_cb = rx_completed;
-  // driver->rx_end_cb = rx_ended;
-  driver->tx_completed_cb = tx_completed;
-
-  //Receive
-  // uint8_t buffer[64];
-  // const size_t buffer_size = ARRAY_LEN(buffer);
-  // hal::uart::receive(driver, buffer, buffer_size);
-
-  //Send
-  const std::string_view msg = "Siema to jestem ja\r\n";
-  uint8_t out_buffer[64]{0};
-  constexpr size_t out_buffer_size = sizeof(out_buffer);
-  std::copy(msg.begin(), msg.end(), out_buffer);
-  hal::uart::send(driver, out_buffer, out_buffer_size);
+  auto console_driver = hal::uart::setup<decltype(console_config)>();
+  console::set_uart_driver(console_driver);
 
   while(1)
   {
+
     if (x == 20)
     {
-      x = 10;
+
     }
   }
 }

@@ -15,11 +15,11 @@ namespace drivers::uart
   struct UartDriver;
 
   using buffer_ptr_t = uint8_t*;
-  using rx_completed_t = std::add_pointer_t<void(UartDriver*)>;
-  using rx_end_t = std::add_pointer_t<void(UartDriver*)>;
-  using rx_char_received_t = std::add_pointer_t<void(UartDriver*)>;
+  using rx_completed_t = std::add_pointer_t<void(void*)>;
+  using rx_end_t = std::add_pointer_t<void(void*)>;
+  using rx_char_received_t = std::add_pointer_t<void(void*)>;
 
-  using tx_completed_t = std::add_pointer_t<void(UartDriver*)>;
+  using tx_completed_t = std::add_pointer_t<void(void*)>;
 
   //Template version
   template<

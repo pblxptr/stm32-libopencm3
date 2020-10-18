@@ -42,6 +42,7 @@ namespace platform::hal::uart
       driver->rx_state = UartState::IDLE;
       check_and_call(driver->rx_completed_cb, driver);
     }
+    //Todo: Add error handling
   }
 
   inline void _hal_handle_uart_dma_tx_isr(void* ctx, dma_flags_t flags)
@@ -66,11 +67,18 @@ namespace platform::hal::uart
       driver->rx_state = UartState::IDLE;
       check_and_call(driver->rx_end_cb, driver);
     }
+    //Todo: Add error handling
   }
 
   inline void init()
   {
+    //TODO: Disable unused clocks
     rcc_periph_clock_enable(RCC_USART1);
+    rcc_periph_clock_enable(RCC_USART2);
+    rcc_periph_clock_enable(RCC_USART3);
+    rcc_periph_clock_enable(RCC_UART4);
+    rcc_periph_clock_enable(RCC_UART5);
+    rcc_periph_clock_enable(RCC_USART6);
   }
 
   template<class TConfig>
@@ -78,7 +86,7 @@ namespace platform::hal::uart
   {
     using Config = TConfig;
 
-    static_assert(Config::uart_id == USART1);
+    static_assert(Config::uart_id == USART1 || Config::uart_id == USART2);
 
     //Configure GPIO for UART //TODO: Currently hardcoded for USART1
     platform::ll_drivers::uart::configure_uart_gpio<Config::uart_id>();
@@ -124,7 +132,29 @@ namespace platform::hal::uart
     driver->fwd_isr_ctx = driver;
 
     //Configure DMA 
-    platform::ll_drivers::uart::configure_uart_dma<Config::uart_id>(driver);
+    platform::ll_drivers::uart::attach_dma<Config::uart_id>(driver);
+    // -> RX dma
+    dma_disable_stream(driver->rx_dma->dma, driver->rx_dma->stream);
+    dma_stream_reset(driver->rx_dma->dma, driver->rx_dma->stream);
+    dma_set_peripheral_address(driver->rx_dma->dma, driver->rx_dma->stream, reinterpret_cast<uint32_t>(&USART_DR(driver->uart_id)));
+    dma_channel_select(driver->rx_dma->dma, driver->rx_dma->stream, DMA_SxCR_CHSEL_4);
+    dma_set_priority(driver->rx_dma->dma, driver->rx_dma->stream, DMA_SxCR_PL_MEDIUM);
+    dma_set_memory_size(driver->rx_dma->dma, driver->rx_dma->stream, DMA_SxCR_MSIZE_8BIT);
+    dma_set_peripheral_size(driver->rx_dma->dma, driver->rx_dma->stream, DMA_SxCR_PSIZE_8BIT);
+    dma_enable_memory_increment_mode(driver->rx_dma->dma, driver->rx_dma->stream);
+    dma_enable_circular_mode(driver->rx_dma->dma, driver->rx_dma->stream);
+    dma_set_transfer_mode(driver->rx_dma->dma, driver->rx_dma->stream, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
+
+    // -> TX dma
+    dma_disable_stream(driver->tx_dma->dma, driver->tx_dma->stream);
+    dma_stream_reset(driver->tx_dma->dma, driver->tx_dma->stream);
+    dma_set_peripheral_address(driver->tx_dma->dma, driver->tx_dma->stream, reinterpret_cast<uint32_t>(&USART_DR(driver->uart_id)));
+    dma_channel_select(driver->tx_dma->dma, driver->tx_dma->stream, DMA_SxCR_CHSEL_4);
+    dma_set_priority(driver->tx_dma->dma, driver->tx_dma->stream, DMA_SxCR_PL_MEDIUM);
+    dma_set_memory_size(driver->tx_dma->dma, driver->tx_dma->stream, DMA_SxCR_MSIZE_8BIT);
+    dma_set_peripheral_size(driver->tx_dma->dma, driver->tx_dma->stream, DMA_SxCR_PSIZE_8BIT);
+    dma_enable_memory_increment_mode(driver->tx_dma->dma, driver->tx_dma->stream);
+    dma_set_transfer_mode(driver->tx_dma->dma, driver->tx_dma->stream, DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
     
     //Fwd function when RX
     driver->rx_dma->fwd_isr = _hal_handle_uart_dma_rx_isr;

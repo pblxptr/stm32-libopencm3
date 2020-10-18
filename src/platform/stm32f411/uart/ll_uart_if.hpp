@@ -107,7 +107,10 @@ namespace platform::ll_drivers::uart
   void configure_interrupts();
 
   template<uint32_t UART_ID>
-  void configure_uart_dma(STM32UartDriver*);
+  void attach_dma(STM32UartDriver*);
+
+  template<uint32_t UART_ID>
+  uint32_t get_dr_reg();
 
   template<uint32_t UART_ID>
   constexpr STM32UartDriver* get_driver();

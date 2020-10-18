@@ -9,13 +9,6 @@ namespace os::core
 {
   void init() 
   {
-    //Configure main clock.
-    rcc_clock_setup_in_hse_8mhz_out_72mhz();
-
-    //Configure systick subsystem.
-    systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
-    systick_set_reload(8999);
-
     //Configure timers subsystem.
     os::timer::init();
   }

@@ -12,4 +12,5 @@ namespace platform::config
   
   //Uart
   constexpr uint32_t SERIAL1 = USART1;
+  constexpr uint32_t CONSOLE = USART2;
 }

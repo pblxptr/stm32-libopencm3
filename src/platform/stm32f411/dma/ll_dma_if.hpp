@@ -22,6 +22,9 @@ namespace platform::ll_drivers::dma
   };
 
   //TODO: Only for uart1
+  extern DmaStream dma1_stream5;
+  extern DmaStream dma1_stream6;
+
   extern DmaStream dma2_stream2;
   extern DmaStream dma2_stream7;
 }

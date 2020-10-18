@@ -41,6 +41,7 @@ namespace platform::hal::gpio
 { 
   inline void init()
   {
+    //TODO: Disable unused gpio
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);

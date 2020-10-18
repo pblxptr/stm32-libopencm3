@@ -14,7 +14,7 @@ target_link_libraries(${APP_BIN}
   # ${LIBOPENCM3_BIN}
   ${DRIVERS_BIN}
   # ${OS_BIN}  
-  # ${UTILS_BIN}
+  ${UTILS_BIN}
   ${PLATFORM_BIN}
   ${HAL_BIN}
 )

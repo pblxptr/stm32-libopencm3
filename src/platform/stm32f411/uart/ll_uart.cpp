@@ -18,19 +18,11 @@ namespace {
     [[maybe_unused]] auto sr = USART_SR(uart_id);
     [[maybe_unused]] auto dr = USART_DR(uart_id);
   }
-}
 
-namespace platform::ll_drivers::uart
-{
-  STM32UartDriver uart1;
-}
-
-extern "C" {
-  void usart1_isr()
+  static void handle_isr(STM32UartDriver* uart)
   {
     using namespace platform::ll_drivers::uart;
 
-    auto* uart = &uart1;
     uart_flags_t flags{0};
 
     //When idle interrupt is triggered
@@ -56,6 +48,16 @@ extern "C" {
     {
       uart->fwd_isr(uart->fwd_isr_ctx, flags);
     }
-
   }
+}
+
+namespace platform::ll_drivers::uart
+{
+  STM32UartDriver uart1;
+  STM32UartDriver uart2;
+}
+
+extern "C" {
+  void usart1_isr() { handle_isr(&uart1); }
+  void usart2_isr() { handle_isr(&uart2); }
 }
