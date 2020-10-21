@@ -110,6 +110,12 @@ int main()
   auto esp8266_uart_driver = hal::uart::setup<decltype(esp8266_uart_config)>();
   auto esp8266_wlan = Esp8266Wlan{esp8266_uart_driver};
 
+  for (size_t i = 0; i < 999999; i++)
+  {
+    __asm("nop");
+  }
+
+  esp8266_wlan.set_mode();
 
   while(1)
   {

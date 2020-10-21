@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <type_traits>
+#include <cstddef>
 
 namespace drivers::uart
 {
@@ -16,7 +17,7 @@ namespace drivers::uart
 
   using buffer_ptr_t = uint8_t*;
   using rx_completed_t = std::add_pointer_t<void(void*)>;
-  using rx_end_t = std::add_pointer_t<void(void*)>;
+  using rx_end_t = std::add_pointer_t<void(void*, const size_t)>;
 
   using tx_completed_t = std::add_pointer_t<void(void*)>;
 

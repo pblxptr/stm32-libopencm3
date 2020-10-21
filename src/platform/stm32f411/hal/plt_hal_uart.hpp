@@ -20,12 +20,12 @@ namespace {
   using namespace platform::ll_drivers::uart;
   using namespace platform::ll_drivers::dma;
   
-  template<class T>
-  static inline void check_and_call(T* func_ptr, void* ctx)
+  template<class T, class... TArgs>
+  static inline void check_and_call(T* func_ptr, TArgs... args)
   {
     if (func_ptr != nullptr)
     {
-      func_ptr(ctx);
+      func_ptr(args...);
     }
   }
 }
@@ -67,7 +67,7 @@ namespace platform::hal::uart
     if (flags & USART_FLAG_IDLE)
     {
       driver->rx_state = UartState::IDLE;
-      check_and_call(driver->rx_end_cb, driver->rx_event_ctx);
+      check_and_call(driver->rx_end_cb, driver->rx_event_ctx, nbytes);
     }
     //Todo: Add error handling
   }

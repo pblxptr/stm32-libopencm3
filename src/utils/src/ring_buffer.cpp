@@ -22,6 +22,16 @@ namespace utils::containers
     return capacity_;
   }
 
+  uint8_t& RingBuffer::head()
+  {
+    return buff_[head_];
+  }
+
+  uint8_t& RingBuffer::tail()
+  {
+    return buff_[tail_];
+  }
+
   void RingBuffer::write(const uint8_t data)
   {
     buff_[head_++ % buffSize_] = data;

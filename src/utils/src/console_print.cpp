@@ -8,14 +8,10 @@ using namespace utils::containers;
 
 namespace {
   UartDriver* driver{nullptr};
-  static constexpr size_t DEBUG_BUFFER_SIZE = 128;
+  static constexpr size_t DEBUG_BUFFER_SIZE = 512;
   static uint8_t rb_buffer[DEBUG_BUFFER_SIZE];
   static RingBuffer rb{rb_buffer, DEBUG_BUFFER_SIZE};
   static uint8_t send_buffer[DEBUG_BUFFER_SIZE];
-
-  void handle_sending_completed([[maybe_unused]] void* ctx)
-  {
-  }
 }
 namespace utils::debug::console
 {
@@ -23,19 +19,25 @@ namespace utils::debug::console
   {
     driver = uart_driver;
 
-    print("Debug console configured.");
+    print("Debug console enabled.\r\n");
   }
   
   void print(const std::string_view sw)
   {
     rb.write(reinterpret_cast<const uint8_t*>(sw.data()), sw.size());
-    rb.write('\r');
-    rb.write('\n');
   }
 
   void print(const uint8_t* buffer, size_t sz)
   {
     rb.write(buffer, sz); 
+  }
+
+  void print(RingBuffer& in_rb, size_t sz)
+  {
+    for (size_t i = 0; i < sz; ++i)
+    {
+      rb.write(in_rb.read());
+    }
   }
 
   void task()

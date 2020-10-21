@@ -12,6 +12,8 @@ namespace utils::containers
     RingBuffer(uint8_t* buff, size_t buffSize);
     size_t capacity() const;
 
+  uint8_t& head();
+  uint8_t& tail();
   void write(const uint8_t data);
   void write(const uint8_t* data, const size_t len);
   uint8_t read();
