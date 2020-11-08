@@ -1,5 +1,7 @@
 #include <ring_buffer.hpp>
 
+#include <algorithm>
+
 namespace utils::containers 
 {
   RingBuffer::RingBuffer()
@@ -22,14 +24,24 @@ namespace utils::containers
     return capacity_;
   }
 
-  uint8_t& RingBuffer::head()
+  uint8_t* RingBuffer::begin() const
   {
-    return buff_[head_];
+    return buff_;
   }
 
-  uint8_t& RingBuffer::tail()
+  uint8_t* RingBuffer::end() const
   {
-    return buff_[tail_];
+    return buff_ + buffSize_ + 1;
+  }
+
+  uint8_t* RingBuffer::head() const
+  {
+    return &buff_[head_];
+  }
+
+  uint8_t* RingBuffer::tail() const
+  {
+    return &buff_[tail_];
   }
 
   void RingBuffer::write(const uint8_t data)
@@ -48,6 +60,12 @@ namespace utils::containers
       write(*data++);
   }
 
+  void RingBuffer::write(const char* data, const size_t len)
+  {
+    for (size_t i = 0; i < len; i++)
+      write(*data++);
+  }
+
   uint8_t RingBuffer::read()
   {
     auto ret = uint8_t{0xFF}; // temporary invalid value
@@ -60,5 +78,13 @@ namespace utils::containers
     --capacity_;
 
     return ret;
+  }
+
+  void RingBuffer::clear()
+  {
+    std::fill_n(buff_, buffSize_, 0);
+    tail_ = 0;
+    head_ = 0;
+    capacity_ = 0;
   }
 }

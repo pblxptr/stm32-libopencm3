@@ -12,14 +12,22 @@ namespace utils::containers
     RingBuffer(uint8_t* buff, size_t buffSize);
     size_t capacity() const;
 
-  uint8_t& head();
-  uint8_t& tail();
-  void write(const uint8_t data);
-  void write(const uint8_t* data, const size_t len);
-  uint8_t read();
+  using iterator = uint8_t*;
+  using const_iterator = uint8_t*;
+  using vaule_type = uint8_t;
+
+  const_iterator begin() const;
+  const_iterator end() const;
+  const_iterator head() const;
+  const_iterator tail() const;
+  void write(const vaule_type data);
+  void write(const vaule_type* data, const size_t len);
+  void write(const char* data, const size_t len);
+  vaule_type read();
+  void clear();
   
   private:
-    uint8_t* buff_;
+    vaule_type* buff_;
     size_t buffSize_;
     size_t head_; 
     size_t tail_;

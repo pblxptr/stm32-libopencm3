@@ -15,6 +15,8 @@ namespace devices::esp8266
   constexpr size_t RX_BUFFER_SIZE = 256;
   constexpr size_t TX_BUFFER_SIZE = 128;
 
+  enum class Mode : uint16_t{ Client, AccessPoint };
+
   class Esp8266Wlan
   {
     UartDriver* uart_;
@@ -28,17 +30,17 @@ namespace devices::esp8266
     explicit Esp8266Wlan(UartDriver* uart);
 
     //Configuration methods
-    void set_mode();
+    void reset();
+    void set_mode(const Mode&);
     void test(); //TODO: Remove after driver is done.
     void connect_wlan(const std::string_view uuid, const std::string_view password);
 
-    //Network API
-
-    //Task
     void task();
 
     //Handles -> called from interrupts
     void handle_rx_end(const size_t);
     
+  private:
+    void execute_blocking_operation();
   };
 }

@@ -110,8 +110,5 @@ namespace platform::ll_drivers::uart
   void attach_dma(STM32UartDriver*);
 
   template<uint32_t UART_ID>
-  uint32_t get_dr_reg();
-
-  template<uint32_t UART_ID>
   constexpr STM32UartDriver* get_driver();
 }

@@ -5,6 +5,7 @@ project(stm32-template)
 set(CMAKE_ASM_COMPILER "/usr/bin/arm-none-eabi-gcc")
 set(CMAKE_C_COMPILER "/usr/bin/arm-none-eabi-gcc")
 set(CMAKE_CXX_COMPILER "/usr/bin/arm-none-eabi-g++")
+
 set(CMAKE_CXX_CPPCHECK "cppcheck")
 
 # CMAKE MODULES

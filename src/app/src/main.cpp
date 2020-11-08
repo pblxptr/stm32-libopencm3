@@ -39,7 +39,6 @@ void tx_completed([[maybe_unused]]drivers::uart::UartDriver* driver)
 }
 
 namespace console = utils::debug::console;
-
 using namespace devices::esp8266;
 
 int main()
@@ -109,13 +108,9 @@ int main()
 
   auto esp8266_uart_driver = hal::uart::setup<decltype(esp8266_uart_config)>();
   auto esp8266_wlan = Esp8266Wlan{esp8266_uart_driver};
-
-  for (size_t i = 0; i < 999999; i++)
-  {
-    __asm("nop");
-  }
-
-  esp8266_wlan.set_mode();
+  
+  // esp8266_wlan.reset();
+  esp8266_wlan.set_mode(devices::esp8266::Mode::Client);
 
   while(1)
   {
