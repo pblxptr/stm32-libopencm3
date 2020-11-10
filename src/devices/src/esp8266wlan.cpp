@@ -2,6 +2,8 @@
 #include <hal/uart.hpp>
 #include <console_print.hpp>
 #include <cstring>
+#include <cmath>
+#include <functional>
 
 using namespace drivers::uart;
 using namespace devices::esp8266;
@@ -94,68 +96,84 @@ namespace devices::esp8266
   {
     hal::uart::send(uart_, tx_buffer_, tx_rb_.capacity());
 
-    uint8_t operation_buffer[64];
-    auto operation_rb = RingBuffer{operation_buffer, ARRAY_LEN(operation_buffer)};
-    std::fill(operation_rb.begin(), operation_rb.end(), '\0');
-
     while(!response_ready);
 
-    const auto current_tail = rx_rb_.tail();
-    const auto current_head = rx_rb_.head();
-    while (current_head != current_tail)
+    //----------------
+    //tmp
+    auto needle = std::string_view{"AT+CWMODE"};
+    //-----------------
+
+    //Rolling hash
+    //Compute hash 
+
+    auto compute_hash = [](const std::string_view& sw, size_t base, size_t mod)
     {
-      if (operation_rb.head() == operation_rb.end() - 1)
+      size_t hash = 0;
+      for (size_t i = 0; i < sw.size(); ++i)
       {
-        operation_rb.write('\0');
-        continue;
+        hash += sw[i] * std::pow(base, i);
       }
-      operation_rb.write(rx_rb_.read());
+      return hash % mod;
+    };
+
+    constexpr uint32_t base = 7;
+    constexpr uint32_t mod = 2147483647;
+
+    //Fill haystack buffer 
+    char haystack_buffer[64] = {"0"};
+    std::generate_n(haystack_buffer, needle.size(), [&] { 
+      const auto data = rx_rb_.read();
+      rx_rb_.write(data);
+      return data;
+    });
+
+    //Hashes
+    size_t haystack_hash = compute_hash(std::string_view{haystack_buffer, needle.size()}, base, mod);
+    const size_t needle_hash = compute_hash(needle, base, mod);
+
+    //Drop & Add values
+    size_t drop_idx = 0;
+    size_t add_idx = needle.size();
+
+    const uint32_t drop_power = std::pow(base, 0);
+    const uint32_t add_power = std::pow(base, needle.size() - 1);
+
+    auto drop = [&]()
+    {
+      haystack_hash -= haystack_buffer[drop_idx++] * drop_power;
+      haystack_hash /= base;
+
+      if (drop_idx == ARRAY_LEN(haystack_buffer) - needle.size())
+      {
+        for (size_t i = 0; i < needle.size(); ++i)
+        {
+          haystack_buffer[i] = haystack_buffer[drop_idx++];
+        }
+        drop_idx = 0;
+        add_idx = needle.size();
+      }
+    };
+
+    auto add = [&]()
+    {
+      const uint8_t data = rx_rb_.read();
+      haystack_buffer[add_idx] = data;
+      rx_rb_.write(data);
+      haystack_hash += haystack_buffer[add_idx++] * add_power;
+    };
+
+    for (size_t i = 0; i < 20; i++)
+    {
+      if (haystack_hash == needle_hash)
+      {
+        console::print("Hash match.\n");
+
+        break;
+      }
+
+      drop();
+      add();
     }
-
-
-    // hal::uart::send(uart_, tx_buffer_, tx_rb_.capacity());
-
-    // char tmp_buff[64];
-
-    // std::fill_n(tmp_buff, ARRAY_LEN(tmp_buff), '\0');
-
-    // for (size_t i = 0; i < ARRAY_LEN(tmp_buff) - 1; ++i)
-    // {
-    //   //Check if buffer is not empty
-    //   if (!rx_rb_.capacity())
-    //     break;
-      
-    //   const auto data = rx_rb_.read();
-
-    //   rx_rb_.tail();
-
-    //   ///ASDACZXCASD\0ASDASDAT+CW
-    //   //D=
-
-    //   //Check if data is valid
-    //   if (!(data >= 'A' && data <= 'Z' || data == ' '))
-    //     continue;
-      
-    //   tmp_buff[i] = data;
-
-    //   auto haystack = std::string_view{tmp_buff, ARRAY_LEN(tmp_buff) - 1};
-
-
-    //   if (auto pos = haystack.find(std::string_view{"OK"}); pos != std::string_view::npos)
-    //   {
-    //     console::print("[ESP8266] Ok found.\r\n");
-    //   }
-    //   else if (auto pos = haystack.find(std::string_view{"ERROR"}); pos != std::string_view::npos)
-    //   {
-    //     console::print("[ESP8266] Error found.\r\n");
-    //   }
-    //   else 
-    //   {
-    //     console::print("[ESP8266] unkown response found.\r\n");
-    //   }
-    // }
-
-    // tx_rb_.clear();
   }
 
   void Esp8266Wlan::connect_wlan(const std::string_view uuid, const std::string_view password) {}

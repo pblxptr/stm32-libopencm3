@@ -1,0 +1,120 @@
+#include <iostream>
+#include <string_view>
+#include <cmath>
+
+    auto needle = std::string_view{"TEST"};
+    char haystack[] = {
+        'S', 'T', 'T', 'E', 'S', 'T', '\r', '\n', 'T', 'E', 'S', 'T', 'T', 'E'
+    };
+
+
+    auto head_idx = 0;
+    auto tail_idx = 2;
+
+char get()
+{
+    return haystack[tail_idx++ % sizeof(haystack)];
+}
+
+void put(char c)
+{
+    haystack[head_idx++ % sizeof(haystack)] = c;
+}
+
+
+void print()
+{
+    for (size_t i = 0; i < sizeof(haystack); i++)
+    {
+        std::cout << haystack[i];
+    }
+    std::cout << std::endl;
+}
+
+
+// std::tuple<bool, size_t, size_t> find()
+// {
+//     auto head_cp = head_idx % sizeof(haystack);
+
+//     print();
+
+//     size_t check_idx = 0;
+
+//     bool found{false};
+
+//     while (tail_idx % sizeof(haystack) != head_cp)
+//     {
+//         auto data = get();
+//         put(data);
+
+//         if (data == needle[check_idx])
+//         {
+//             check_idx++;
+//         }
+//         else 
+//         {
+//             check_idx = 0;
+//         }
+//         if (check_idx == needle.size())
+//         {
+//             found = true;
+//             break;
+//         }
+//         std::cout << std::endl;
+//     }
+// }
+
+constexpr uint32_t base = 7;
+
+size_t compute_hash(std::string_view str)
+{
+    size_t hash = 0;
+
+    for (size_t i = 0; i < str.size(); ++i)
+    {
+        hash += str[i] * std::pow(base, i);
+    }
+
+    return hash;
+}
+
+bool find(std::string_view haystack, std::string_view needle)
+{
+    std::cout << "Find " << needle << " in " << haystack << ".\n";
+
+    const auto needle_hash = compute_hash(needle) % 2147483647;
+    auto haystack_substr_hash = compute_hash(haystack.substr(0, needle.size())) % 2147483647;
+
+    std::cout << "Haystack hash:" << haystack_substr_hash <<  " \n";
+    std::cout << "Needl hash: " << needle_hash << " \n";
+
+    size_t drop_idx = 0;
+    size_t add_idx = needle.size(); 
+
+    const uint32_t drop_power = std::pow(base, 0);
+    const uint32_t add_power = std::pow(base, needle.size() - 1);
+
+    while(haystack_substr_hash != needle_hash)
+    {
+        if (add_idx == haystack.size())
+        {
+            return false;
+        }
+
+        haystack_substr_hash -= haystack[drop_idx++] * drop_power;
+        haystack_substr_hash /= base;
+        haystack_substr_hash += haystack[add_idx++] * add_power;
+    }        
+
+    return true;
+}
+
+int main()
+{
+    char data[] = "IPD+4,3ADASDASdaADASDAAAAT+CWD=2ASDd";
+    auto haystack = std::string_view{data, sizeof(data) - 1};
+    auto needle = std::string_view{"AT+CWD"};
+
+    std::cout << find(haystack, needle);
+
+}

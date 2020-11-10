@@ -19,6 +19,7 @@ namespace devices::esp8266
 
   class Esp8266Wlan
   {
+  public: //TODO: Temporary
     UartDriver* uart_;
     //RX
     uint8_t rx_buffer_[RX_BUFFER_SIZE];

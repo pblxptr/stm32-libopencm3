@@ -25,6 +25,8 @@ namespace utils::debug::console
   void print(const std::string_view sw)
   {
     rb.write(reinterpret_cast<const uint8_t*>(sw.data()), sw.size());
+
+    task(); //TODO: Test
   }
 
   void print(const uint8_t* buffer, size_t sz)
@@ -58,6 +60,6 @@ namespace utils::debug::console
       send_buffer[i] = rb.read();
     }
 
-    hal::uart::send(driver, send_buffer, DEBUG_BUFFER_SIZE);
+    hal::uart::send(driver, send_buffer, capacity);
   }
 }
