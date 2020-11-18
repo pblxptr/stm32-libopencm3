@@ -118,3 +118,87 @@ int main()
     std::cout << find(haystack, needle);
 
 }
+
+  void Esp8266Wlan::execute_blocking_operation()
+  {
+    hal::uart::send(uart_, tx_buffer_, tx_rb_.capacity());
+
+    while(!response_ready);
+
+    //----------------
+    //tmp
+    auto needle = std::string_view{"AT+CWMODE"};
+    //-----------------
+
+    //Rolling hash
+    //Compute hash 
+
+    auto compute_hash = [](const std::string_view& sw, size_t base, size_t mod)
+    {
+      size_t hash = 0;
+      for (size_t i = 0; i < sw.size(); ++i)
+      {
+        hash += sw[i] * std::pow(base, i);
+      }
+      return hash % mod;
+    };
+
+    constexpr uint32_t base = 7;
+    constexpr uint32_t mod = 2147483647;
+
+    //Fill haystack buffer 
+    char haystack_buffer[64] = {"0"};
+    std::generate_n(haystack_buffer, needle.size(), [&] { 
+      const auto data = rx_rb_.read();
+      rx_rb_.write(data);
+      return data;
+    });
+
+    //Hashes
+    size_t haystack_hash = compute_hash(std::string_view{haystack_buffer, needle.size()}, base, mod);
+    const size_t needle_hash = compute_hash(needle, base, mod);
+
+    //Drop & Add values
+    size_t drop_idx = 0;
+    size_t add_idx = needle.size();
+
+    const uint32_t drop_power = std::pow(base, 0);
+    const uint32_t add_power = std::pow(base, needle.size() - 1);
+
+    auto drop = [&]()
+    {
+      haystack_hash -= haystack_buffer[drop_idx++] * drop_power;
+      haystack_hash /= base;
+
+      if (drop_idx == ARRAY_LEN(haystack_buffer) - needle.size())
+      {
+        for (size_t i = 0; i < needle.size(); ++i)
+        {
+          haystack_buffer[i] = haystack_buffer[drop_idx++];
+        }
+        drop_idx = 0;
+        add_idx = needle.size();
+      }
+    };
+
+    auto add = [&]()
+    {
+      const uint8_t data = rx_rb_.read();
+      haystack_buffer[add_idx] = data;
+      rx_rb_.write(data);
+      haystack_hash += haystack_buffer[add_idx++] * add_power;
+    };
+
+    for (size_t i = 0; i < 20; i++)
+    {
+      if (haystack_hash == needle_hash)
+      {
+        console::print("Hash match.\n");
+
+        break;
+      }
+
+      drop();
+      add();
+    }
+  }

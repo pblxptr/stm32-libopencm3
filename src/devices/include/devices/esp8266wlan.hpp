@@ -17,6 +17,8 @@ namespace devices::esp8266
 
   enum class Mode : uint16_t{ Client, AccessPoint };
 
+  class CwModeCommand;
+
   class Esp8266Wlan
   {
   public: //TODO: Temporary
@@ -42,6 +44,6 @@ namespace devices::esp8266
     void handle_rx_end(const size_t);
     
   private:
-    void execute_blocking_operation();
+    void execute_blocking_operation(const CwModeCommand&);
   };
 }
