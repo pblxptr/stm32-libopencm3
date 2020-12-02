@@ -3,11 +3,6 @@
 #include <hal/uart.hpp>
 #include <console_print.hpp>
 #include <cstring>
-#include <cmath>
-
-#include <iostream>
-
-
 
 using namespace drivers::uart;
 using namespace devices::esp8266;
@@ -29,26 +24,11 @@ static constexpr std::string_view operation_terminator{"\r\n"};
     device->handle_rx_end(nbytes);
   }
 
-  //Helpers
-  bool find_in_rb(RingBuffer& rb, const std::string_view needle)
+  static auto find_in_rb(const RingBuffer& rb, std::string_view needle)
   {
-    const auto head_backup = rb.head();
-    size_t needle_idx = 0;
-
-    while (rb.tail() != head_backup)
-    {
-      const auto data = rb.read();
-      rb.write(data);
-
-      if (data != needle[needle_idx++])
-        needle_idx = 0;
-
-      if (needle_idx == needle.size())
-        return true;
-    }
-
-    return false;
+    return rb.find(reinterpret_cast<const uint8_t*>(needle.data()), needle.size());
   }
+
 }
 
 static volatile bool response_ready{false};
@@ -76,42 +56,52 @@ namespace devices::esp8266
 
   }
 
-  void Esp8266Wlan::set_mode(const Mode& mode)
+  bool Esp8266Wlan::set_mode(const Mode& mode)
   {
     console::print("[ESP8266] set_mode.\r\n");
     
     const auto command = CwModeCommand{mode};
 
-    execute_blocking_operation(command);
+    return execute_blocking_operation(command);
   }
 
-  void Esp8266Wlan::execute_blocking_operation(const CwModeCommand& command)
+  bool Esp8266Wlan::execute_blocking_operation(const CwModeCommand& command)
   {
+    //Serialize command
     tx_rb_.clear();
     command.serialize(tx_rb_);
     tx_rb_.write(operation_terminator.data(), operation_terminator.size());
 
+    //Send command
     hal::uart::send(uart_, tx_buffer_, tx_rb_.capacity());
 
+    //Wait for response
     while(!response_ready); 
 
-    const bool isOkFound = find_in_rb(rx_rb_, "OK");
-    const bool isErrorFound = find_in_rb(rx_rb_, "ERROR");
+    console::print("Response ready.\n");
 
-    if (isOkFound)
+    //Find if command was sent back from the device ECHO MODE
+    auto cmdIter = find_in_rb(rx_rb_, command.command());
+    if (cmdIter == rx_rb_.end())
+      return false;
+
+    //Remove command from buffer
+    std::fill_n(cmdIter, command.command().size(), '\0');
+
+    if (auto okIter = find_in_rb(rx_rb_, operation_succeed); okIter != rx_rb_.end())
     {
-      std::cout << "[ESP8266] Ok response found.\n";
+      console::print("Operation succeeded.\n");
+      std::fill_n(okIter, operation_succeed.size(), '\0');
+      return true;
     }
-    else if (isErrorFound)
+    else if (auto errorIter = find_in_rb(rx_rb_, operation_failed); errorIter != rx_rb_.end())
     {
-      std::cout << "[ESP8266] Error response found.\n";
-    }
-    else 
-    {
-      std::cout << "[ESP8266] Response not found.\n";
+      console::print("Operation failed.\n");
+      std::fill_n(okIter, operation_failed.size(), '\0');
+      return false;
     }
 
-
+    return false;
   }
 
   void Esp8266Wlan::connect_wlan(const std::string_view uuid, const std::string_view password) {}
@@ -131,5 +121,4 @@ namespace devices::esp8266
   {
     
   }
-
 }

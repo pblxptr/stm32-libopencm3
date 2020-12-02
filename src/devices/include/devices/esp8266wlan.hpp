@@ -34,7 +34,7 @@ namespace devices::esp8266
 
     //Configuration methods
     void reset();
-    void set_mode(const Mode&);
+    bool set_mode(const Mode&);
     void test(); //TODO: Remove after driver is done.
     void connect_wlan(const std::string_view uuid, const std::string_view password);
 
@@ -44,6 +44,6 @@ namespace devices::esp8266
     void handle_rx_end(const size_t);
     
   private:
-    void execute_blocking_operation(const CwModeCommand&);
+    bool execute_blocking_operation(const CwModeCommand&);
   };
 }
