@@ -1,10 +1,19 @@
 #pragma once 
-#include <stdint.h>
-#include <messages.h>
+#include <string.h>
+#include <msg_gps_buffer.h>
+#include <assert.h>
 
-inline uint8_t msg_deserialize_header(uint8_t* buffer)
+void serialize(msg_number_t msg_number, void* msg, void* dest)
 {
-    return buffer[0]; 
-}
+    assert(msg != NULL);
+    assert(dest != NULL);
 
-void msg_serialize_header(uint8_t* buffer, uint8_t msg_number);
+    switch (msg_number)
+    {
+        case MSG_GPS_BUFFER_FWD: 
+        {
+            msg_gps_buffer_fwd* msg = (msg_gps_buffer_fwd*)msg;
+            memcpy(dest, &msg->buff_part, sizeof(msg->buff_part));
+        }
+    }
+}

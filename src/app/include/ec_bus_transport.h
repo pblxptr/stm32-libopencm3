@@ -16,4 +16,5 @@ typedef struct _ec_bus_transport_init_t_ {
 } ec_bus_transport_init_t;
 
 void ec_bus_transport_init(const ec_bus_transport_init_t* init_config);
+void ec_bus_transport_send();
 void ec_bus_transport_poll();
