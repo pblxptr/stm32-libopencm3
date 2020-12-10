@@ -1,17 +1,15 @@
-#include <drivers/gpio.hpp>
-#include <hal/gpio.hpp>
-#include <drivers/uart.hpp>
-#include <hal/uart.hpp>
-#include <platform/config.hpp>
-#include <platform/peripherals.hpp>
 #include <algorithm>
 #include <string_view>
-#include <console_print.hpp>
+
+#include <hal/gpio.hpp>
+#include <drivers/uart.hpp>
+#include <drivers/gpio.hpp>
+#include <hal/uart.hpp>
+#include <platform/config.hpp>
+#include <utils/console_print.hpp>
 #include <devices/esp8266wlan.hpp>
 
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
-
-volatile int x = 10;
 
 drivers::gpio::GpioDriver* blue_led_driver{nullptr};
 drivers::gpio::GpioDriver* red_led1_driver{nullptr};

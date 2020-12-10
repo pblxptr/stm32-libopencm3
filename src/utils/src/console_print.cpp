@@ -1,5 +1,5 @@
-#include <console_print.hpp>
-#include <ring_buffer.hpp>
+#include <utils/console_print.hpp>
+#include <utils/ring_buffer.hpp>
 
 #include <algorithm>
 
@@ -8,10 +8,13 @@ using namespace utils::containers;
 
 namespace {
   UartDriver* driver{nullptr};
-  static constexpr size_t DEBUG_BUFFER_SIZE = 512;
-  static uint8_t rb_buffer[DEBUG_BUFFER_SIZE];
-  static RingBuffer rb{rb_buffer, DEBUG_BUFFER_SIZE};
-  static uint8_t send_buffer[DEBUG_BUFFER_SIZE];
+  static constexpr size_t DEBUG_RING_BUFFER_SIZE = 512;
+  static constexpr size_t SEND_BUFFER_SIZE = 64;
+
+  static uint8_t rb_buffer[DEBUG_RING_BUFFER_SIZE];
+  static RingBuffer rb{rb_buffer, DEBUG_RING_BUFFER_SIZE};
+
+  static uint8_t send_buffer[SEND_BUFFER_SIZE];
 }
 namespace utils::debug::console
 {
@@ -19,7 +22,7 @@ namespace utils::debug::console
   {
     driver = uart_driver;
 
-    print("Debug console enabled.\r\n");
+    print("[DBG] Debug console enabled.\r\n");
   }
   
   void print(const std::string_view sw)
@@ -44,6 +47,9 @@ namespace utils::debug::console
 
   void task()
   {
+    if (driver == nullptr)
+      return;
+      
     if (driver->tx_state == UartState::ACTIVE)
       return;
 
@@ -54,12 +60,15 @@ namespace utils::debug::console
       return;
     }
 
-    std::fill_n(send_buffer, DEBUG_BUFFER_SIZE, '\0');
-    for (size_t i = 0; i < capacity; ++i)
+    const size_t nbytes = std::min(capacity, SEND_BUFFER_SIZE);
+
+    std::fill_n(send_buffer, SEND_BUFFER_SIZE, '\0');
+    
+    for (size_t i = 0; i < nbytes; ++i)
     {
       send_buffer[i] = rb.read();
     }
 
-    hal::uart::send(driver, send_buffer, capacity);
+    hal::uart::send(driver, send_buffer, nbytes);
   }
 }

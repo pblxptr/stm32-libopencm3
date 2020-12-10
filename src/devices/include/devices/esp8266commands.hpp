@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ring_buffer.hpp>
+#include <utils/ring_buffer.hpp>
 #include <devices/esp8266wlan.hpp>
 
 namespace devices::esp8266

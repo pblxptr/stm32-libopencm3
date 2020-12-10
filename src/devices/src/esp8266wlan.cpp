@@ -1,7 +1,7 @@
 #include <devices/esp8266wlan.hpp>
 #include <devices/esp8266commands.hpp>
 #include <hal/uart.hpp>
-#include <console_print.hpp>
+#include <utils/console_print.hpp>
 #include <cstring>
 
 using namespace drivers::uart;
@@ -31,9 +31,7 @@ static constexpr std::string_view operation_terminator{"\r\n"};
 
 }
 
-static volatile bool response_ready{false};
-
-static size_t expected_response_size = 0;
+static volatile size_t rx_size = 0;
 
 namespace devices::esp8266
 {
@@ -58,7 +56,7 @@ namespace devices::esp8266
 
   bool Esp8266Wlan::set_mode(const Mode& mode)
   {
-    console::print("[ESP8266] set_mode.\r\n");
+    console::print("[ESP8266] Esp8266Wlan::set_mode()\r\n");
     
     const auto command = CwModeCommand{mode};
 
@@ -76,27 +74,30 @@ namespace devices::esp8266
     hal::uart::send(uart_, tx_buffer_, tx_rb_.capacity());
 
     //Wait for response
-    while(!response_ready); 
+    while(rx_size < 5); 
 
-    console::print("Response ready.\n");
+    console::print("[ESP8266] Response ready\r\n");
 
     //Find if command was sent back from the device ECHO MODE
     auto cmdIter = find_in_rb(rx_rb_, command.command());
     if (cmdIter == rx_rb_.end())
+    {
+      console::print("[ESP8266] Command echo not found in buffer.\r\n");
       return false;
+    }
 
     //Remove command from buffer
     std::fill_n(cmdIter, command.command().size(), '\0');
 
     if (auto okIter = find_in_rb(rx_rb_, operation_succeed); okIter != rx_rb_.end())
     {
-      console::print("Operation succeeded.\n");
+      console::print("[ESP8266] Operation succeeded\r\n");
       std::fill_n(okIter, operation_succeed.size(), '\0');
       return true;
     }
     else if (auto errorIter = find_in_rb(rx_rb_, operation_failed); errorIter != rx_rb_.end())
     {
-      console::print("Operation failed.\n");
+      console::print("[ESP8266] Operation failed\r\n");
       std::fill_n(okIter, operation_failed.size(), '\0');
       return false;
     }
@@ -109,12 +110,14 @@ namespace devices::esp8266
   //Handles
   void Esp8266Wlan::handle_rx_end(const size_t nbytes)
   {
-    for (size_t i = 0; i < nbytes; i++)
+    const size_t start_idx = RX_BUFFER_SIZE - nbytes;
+    const size_t bytes_count = RX_BUFFER_SIZE - nbytes;
+
+    rx_size += RX_BUFFER_SIZE - nbytes;
+    for (size_t i = start_idx; i < bytes_count; ++i)
     {
       rx_rb_.write(rx_buffer_[i]);
     }
-
-    response_ready = true;
   }
 
   void Esp8266Wlan::task()

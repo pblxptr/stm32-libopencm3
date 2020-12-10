@@ -76,6 +76,13 @@ public:
     , tail_{0}
   {}
 
+  RingBuffer() = delete;
+  RingBuffer(const RingBuffer&) = delete;
+  RingBuffer& operator=(const RingBuffer&) = delete;
+  RingBuffer(RingBuffer&&) = default;
+  RingBuffer& operator=(RingBuffer&&) = default;
+  ~RingBuffer() = default;
+
   void clear()
   {
     std::fill(begin(), end(), '\0');

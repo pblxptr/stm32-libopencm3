@@ -1,7 +1,7 @@
 #pragma once
 
 #include <drivers/uart.hpp>
-#include <ring_buffer.hpp>
+#include <utils/ring_buffer.hpp>
 
 #include <string_view>
 
@@ -12,7 +12,7 @@ namespace {
 
 namespace devices::esp8266
 {
-  constexpr size_t RX_BUFFER_SIZE = 256;
+  constexpr size_t RX_BUFFER_SIZE = 128;
   constexpr size_t TX_BUFFER_SIZE = 128;
 
   enum class Mode : uint16_t{ Client, AccessPoint };

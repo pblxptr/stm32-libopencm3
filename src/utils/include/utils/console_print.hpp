@@ -3,7 +3,7 @@
 #include <hal/uart.hpp>
 #include <drivers/uart.hpp>
 
-#include <ring_buffer.hpp>
+#include <utils/ring_buffer.hpp>
 #include <string_view>
 
 namespace utils::debug::console
