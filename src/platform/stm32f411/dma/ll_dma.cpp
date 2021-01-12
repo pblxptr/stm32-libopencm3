@@ -1,4 +1,4 @@
-#include <ll_dma_if.hpp>
+#include <ll_dma.hpp>
 
 extern "C" {
   #include <libopencm3/stm32/dma.h>

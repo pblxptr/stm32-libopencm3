@@ -1,7 +1,6 @@
 #pragma once
 
-#include <ll_uart_if.hpp>
-#include <ll_dma_if.hpp>
+#include <ll_dma.hpp>
 
 extern "C" {
   #include <libopencm3/stm32/usart.h>
@@ -17,76 +16,54 @@ namespace {
 
 namespace platform::ll_drivers::uart
 {
+  using uart_flags_t = uint32_t;
+  using uart_irq_t = void(*)(void*, uart_flags_t);
+
+  struct STM32UartDriver : drivers::uart::UartDriver
+  {
+    platform::ll_drivers::dma::DmaStream* rx_dma;
+    platform::ll_drivers::dma::DmaStream* tx_dma;
+    uart_irq_t fwd_isr;
+    void* fwd_isr_ctx;
+
+    STM32UartDriver() //TODO: Add id to contructor
+      : rx_dma{nullptr}
+      , tx_dma{nullptr}
+      , fwd_isr{nullptr}
+      , fwd_isr_ctx{nullptr} {}
+  };
+
   extern STM32UartDriver uart1;
   extern STM32UartDriver uart2;
 
-  //USART1
-  template<>
-  inline void configure_uart_gpio<USART1>()
-  {
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
-	  gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
-  }
+  //API
+  template<uint32_t UART_ID>
+  constexpr STM32UartDriver* get_driver();
 
-  template<>
-  inline void configure_uart_gpio<USART2>()
-  {
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
-	  gpio_set_af(GPIOA, GPIO_AF7, GPIO2 | GPIO3);
-  }
+  template<uint32_t UART_ID>
+  inline void enable_driver(STM32UartDriver*);
 
-  template<>
-  inline void configure_interrupts<USART1>()
+  //SPECIALIZATIONS 
+  template<> constexpr STM32UartDriver* get_driver<USART1>() { return &uart1; }
+  template<> constexpr STM32UartDriver* get_driver<USART2>() { return &uart2; }
+
+  template<> inline void enable_driver<USART1>(STM32UartDriver* driver)
   {
     nvic_enable_irq(NVIC_USART1_IRQ);
-  }
-
-  template<>
-  inline void configure_interrupts<USART2>()
-  {
-    nvic_enable_irq(NVIC_USART2_IRQ);
-  }
-
-  template<>
-  inline void attach_dma<USART1>(STM32UartDriver* driver)
-  {
-    //Enable peripheral clock
-    rcc_periph_clock_enable(RCC_DMA2);
-
-    //Enable nvic interrupt for dma stream
     nvic_enable_irq(NVIC_DMA2_STREAM2_IRQ);
     nvic_enable_irq(NVIC_DMA2_STREAM7_IRQ);
-    
-    //Assing dma channel handler
+
     driver->rx_dma = &platform::ll_drivers::dma::dma2_stream2;
     driver->tx_dma = &platform::ll_drivers::dma::dma2_stream7;
   }
 
-  template<>
-  inline void attach_dma<USART2>(STM32UartDriver* driver)
+  template<> inline void enable_driver<USART2>(STM32UartDriver* driver)
   {
-    //Enable peripheral clock
-    rcc_periph_clock_enable(RCC_DMA1);
-
-    //Enable nvic interrupt for dma stream
+    nvic_enable_irq(NVIC_USART2_IRQ);
     nvic_enable_irq(NVIC_DMA1_STREAM5_IRQ);
     nvic_enable_irq(NVIC_DMA1_STREAM6_IRQ);
-    
-    //Assing dma channel handler
+
     driver->rx_dma = &platform::ll_drivers::dma::dma1_stream5;
     driver->tx_dma = &platform::ll_drivers::dma::dma1_stream6;
   }
-
-  template<>
-  constexpr STM32UartDriver* get_driver<USART1>()
-  {
-    return &uart1;
-  }
-
-  template<>
-  constexpr STM32UartDriver* get_driver<USART2>()
-  {
-    return &uart2;
-  }
-  //USART1_END
 }

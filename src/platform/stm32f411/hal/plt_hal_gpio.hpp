@@ -1,7 +1,9 @@
 #pragma once
 
+#include <plt_hal.hpp>
 #include <drivers/gpio.hpp>
 #include <ll_gpio.hpp>
+
 
 extern "C" {
   #include <libopencm3/stm32/gpio.h>
@@ -64,6 +66,14 @@ namespace platform::hal::gpio
       convert_pupd<Config::pupd>(),
       driver->pin_
     );
+
+    // Check alternate function
+    if constexpr (Config::mode == drivers::gpio::Mode::AF)
+    {
+      static_assert(Config::af_id != HAL_INVALID_VALUE, "Alternate mode selected, but invalid alternate function has been selected.");
+
+      gpio_set_af(driver->port_, Config::af_id, driver->pin_);
+    }
 
     return driver;
   }

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <stdint.h>
-#include <plt_hal_uart_base.hpp>
 #include <drivers/uart.hpp>
 #include <ll_uart.hpp>
+#include <ll_uart_mapping.hpp>
 
 #include <cstddef>
 
@@ -18,14 +18,13 @@ extern "C" {
 namespace {
   using namespace drivers::uart;
   using namespace platform::ll_drivers::uart;
-  using namespace platform::ll_drivers::dma;
   
   template<class T, class... TArgs>
   static inline void check_and_call(T* func_ptr, TArgs... args)
   {
     if (func_ptr != nullptr)
     {
-      func_ptr(args...);
+      func_ptr(args...); //Todo add forward
     }
   }
 }
@@ -74,7 +73,6 @@ namespace platform::hal::uart
 
   inline void init()
   {
-    //TODO: Disable unused clocks
     rcc_periph_clock_enable(RCC_USART1);
     rcc_periph_clock_enable(RCC_USART2);
     rcc_periph_clock_enable(RCC_USART3);
@@ -91,50 +89,50 @@ namespace platform::hal::uart
     static_assert(Config::uart_id == USART1 || Config::uart_id == USART2);
 
     //Configure GPIO for UART //TODO: Currently hardcoded for USART1
-    platform::ll_drivers::uart::configure_uart_gpio<Config::uart_id>();
 
     //Configure mode
     constexpr auto mode = get_mode<Config::mode>();
-    static_assert(mode != platform::hal::uart::INVALID_MODE);
+    static_assert(mode != platform::hal::HAL_INVALID_VALUE);
     usart_set_mode(Config::uart_id, mode);
 
     //Configure baudrate
     constexpr auto baudrate = get_baudate<Config::baudrate>();
-    static_assert(baudrate != platform::hal::uart::INVALID_BAUDRATE);
+    static_assert(baudrate != platform::hal::HAL_INVALID_VALUE);
     usart_set_baudrate(Config::uart_id, baudrate);
 
     //Configure parity
     constexpr auto parity = get_parity<Config::parity>();
-    static_assert(parity != platform::hal::uart::INVALID_PARITY);
+    static_assert(parity != platform::hal::HAL_INVALID_VALUE);
     usart_set_parity(Config::uart_id, parity);
 
     //Configure databits
     constexpr auto databits = get_databits<Config::databits>();
-    static_assert(databits != platform::hal::uart::INVALID_DATABITS);
+    static_assert(databits != platform::hal::HAL_INVALID_VALUE);
     usart_set_databits(Config::uart_id, databits);
     
     //Configure stopbits
     constexpr auto stopbits = get_stopbits<Config::stopbits>();
-    static_assert(stopbits != platform::hal::uart::INVALID_STOPBITS);
+    static_assert(stopbits != platform::hal::HAL_INVALID_VALUE);
     usart_set_stopbits(Config::uart_id, stopbits);
 
     //Configure flow control
     constexpr auto flow_control = get_flow_control<Config::flow_control>();
-    static_assert(flow_control != platform::hal::uart::INVALID_FLOW_CONTROL);
+    static_assert(flow_control != platform::hal::HAL_INVALID_VALUE);
     usart_set_flow_control(Config::uart_id, flow_control);
-
-    //Configure interrupts TODO: Interrupts are enabled when recive is called, function below just enable interrupt in NVIC
-    platform::ll_drivers::uart::configure_interrupts<Config::uart_id>();
 
     //Get driver 
     constexpr STM32UartDriver* driver = platform::ll_drivers::uart::get_driver<Config::uart_id>();
     static_assert(driver != nullptr, "Invalid driver selected. Possibly not yet implemented");
+
+    //Enable driver
+    platform::ll_drivers::uart::enable_driver<Config::uart_id>(driver);
+
+    //Configure forwarding functions
     driver->uart_id = Config::uart_id;
     driver->fwd_isr = _hal_handle_uart_isr;
     driver->fwd_isr_ctx = driver;
 
     //Configure DMA 
-    platform::ll_drivers::uart::attach_dma<Config::uart_id>(driver);
     // -> RX dma
     dma_disable_stream(driver->rx_dma->dma, driver->rx_dma->stream);
     dma_stream_reset(driver->rx_dma->dma, driver->rx_dma->stream);

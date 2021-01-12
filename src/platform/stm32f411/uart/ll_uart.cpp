@@ -36,8 +36,7 @@ namespace {
 
     //When character received interrupt is triggered
     else if ((USART_CR1(uart->uart_id) & USART_CR1_RXNEIE) && 
-            (USART_SR(uart->uart_id) & USART_FLAG_RXNE) 
-            )
+            (USART_SR(uart->uart_id) & USART_FLAG_RXNE))
     {
       flags |= USART_FLAG_RXNE;
       uart_clear_rxne_flag(uart->uart_id);

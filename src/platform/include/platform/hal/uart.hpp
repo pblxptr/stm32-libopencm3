@@ -11,7 +11,4 @@ namespace {
 
 namespace platform::hal::uart
 {
-  // void init();
-  // void setup(UartDriver&, const UartConfig&, int);
-  // void receive(UartDriver* driver, size_t sz, rx_cb);
 }

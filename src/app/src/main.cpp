@@ -1,22 +1,19 @@
 #include <algorithm>
 #include <string_view>
 
-#include <hal/gpio.hpp>
 #include <drivers/uart.hpp>
 #include <drivers/gpio.hpp>
+#include <hal/gpio.hpp>
 #include <hal/uart.hpp>
+#include <hal/dma.hpp>
 #include <platform/config.hpp>
 #include <utils/console_print.hpp>
 #include <devices/esp8266wlan.hpp>
-
-#define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
 drivers::gpio::GpioDriver* blue_led_driver{nullptr};
 drivers::gpio::GpioDriver* red_led1_driver{nullptr};
 drivers::gpio::GpioDriver* red_led2_driver{nullptr};
 drivers::gpio::GpioDriver* red_led3_driver{nullptr};
-
-volatile bool busy{false};
 
 drivers::uart::UartDriver* driver{nullptr};
 
@@ -44,6 +41,7 @@ int main()
   // //Init & setup
   hal::gpio::init();
   hal::uart::init();
+  hal::dma::init();
 
   constexpr auto blue_led_config = drivers::gpio::GpioDriverConfig<
     platform::config::BLUE_LED_GPIO,
@@ -79,7 +77,19 @@ int main()
   hal::gpio::set(red_led2_driver);
   hal::gpio::set(red_led3_driver);
 
-  //Setup Esp8266 uart driver
+  //Setup Esp8266
+  constexpr auto esp8266_gpio_rx = drivers::gpio::GpioDriverConfig<
+    platform::config::SERIAL1_GPIO_RX,
+    drivers::gpio::Mode::AF,
+    drivers::gpio::PullUpDown::NONE,
+    7 
+  >{};
+  constexpr auto esp8266_gpio_tx = drivers::gpio::GpioDriverConfig<
+    platform::config::SERIAL1_GPIO_TX,
+    drivers::gpio::Mode::AF,
+    drivers::gpio::PullUpDown::NONE,
+    7
+  >{};
   constexpr auto esp8266_uart_config = drivers::uart::UartDriverConfig<
     platform::config::SERIAL1,
     drivers::uart::Mode::RX_TX,
@@ -89,9 +99,24 @@ int main()
     drivers::uart::Parity::NONE,
     drivers::uart::FlowControl::NONE
   >{};
+  hal::gpio::setup<decltype(esp8266_gpio_rx)>();
+  hal::gpio::setup<decltype(esp8266_gpio_tx)>();
+  auto esp8266_uart_driver = hal::uart::setup<decltype(esp8266_uart_config)>();
 
   //Setup console
-  constexpr auto console_config = drivers::uart::UartDriverConfig<
+  constexpr auto console_gpio_rx = drivers::gpio::GpioDriverConfig<
+    platform::config::CONSOLE_GPIO_RX,
+    drivers::gpio::Mode::AF,
+    drivers::gpio::PullUpDown::NONE,
+    7
+  >{};
+  constexpr auto console_gpio_tx = drivers::gpio::GpioDriverConfig<
+    platform::config::CONSOLE_GPIO_TX,
+    drivers::gpio::Mode::AF,
+    drivers::gpio::PullUpDown::NONE,
+    7
+  >{};
+  constexpr auto console_uart_config = drivers::uart::UartDriverConfig<
     platform::config::CONSOLE,
     drivers::uart::Mode::RX_TX,
     drivers::uart::Baudrate::B_9600,
@@ -100,14 +125,14 @@ int main()
     drivers::uart::Parity::NONE,
     drivers::uart::FlowControl::NONE
   >{};
-
-  auto console_driver = hal::uart::setup<decltype(console_config)>();
+  hal::gpio::setup<decltype(console_gpio_rx)>();
+  hal::gpio::setup<decltype(console_gpio_tx)>();
+  auto console_driver = hal::uart::setup<decltype(console_uart_config)>();
   console::set_uart_driver(console_driver);
 
-  auto esp8266_uart_driver = hal::uart::setup<decltype(esp8266_uart_config)>();
   auto esp8266_wlan = Esp8266Wlan{esp8266_uart_driver};
   
-  // esp8266_wlan.reset();
+  esp8266_wlan.reset();
   esp8266_wlan.set_mode(devices::esp8266::Mode::Client);
 
   while(1)

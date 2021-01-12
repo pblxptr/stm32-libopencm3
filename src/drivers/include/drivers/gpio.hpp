@@ -13,18 +13,19 @@ namespace drivers::gpio
   };
 
   template<
-    auto _gpio_id,
-    Mode _mode,
-    PullUpDown _pupd
+    auto GpioId,
+    Mode GMode,
+    PullUpDown PuPd,
+    auto AfId = -1
   >
   struct GpioDriverConfig
   {
-    static constexpr uint32_t gpio_id = _gpio_id;
-    static constexpr Mode mode = _mode;
-    static constexpr PullUpDown pupd = _pupd; 
+    static constexpr uint32_t gpio_id = GpioId;
+    static constexpr Mode mode = GMode;
+    static constexpr PullUpDown pupd = PuPd; 
+    static constexpr int32_t af_id = AfId;
   };
 
-  //TOOD: Add set on low or high
   struct GpioDriver
   {
     uint32_t port_;

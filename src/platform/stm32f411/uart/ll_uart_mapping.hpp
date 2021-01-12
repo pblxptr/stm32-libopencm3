@@ -1,13 +1,11 @@
 #pragma once
 
+#include <plt_hal.hpp>
 #include <drivers/uart.hpp>
 
 extern "C" {
   #include <libopencm3/stm32/usart.h>
 }
-
-//Forward reference
-namespace platform::ll_drivers::dma { struct DmaStream; }
 
 namespace platform::ll_drivers::uart
 {
@@ -21,7 +19,7 @@ namespace platform::ll_drivers::uart
     else if constexpr(mode == drivers::uart::Mode::RX_TX)
       return USART_MODE_TX_RX;
     else 
-      return platform::hal::uart::INVALID_MODE;
+      return platform::hal::HAL_INVALID_VALUE;
   }
 
   template<drivers::uart::Baudrate baudrate>
@@ -32,7 +30,7 @@ namespace platform::ll_drivers::uart
     else if constexpr(baudrate == drivers::uart::Baudrate::B_115200)
       return 115200;
     else 
-      return platform::hal::uart::INVALID_BAUDRATE;
+      return platform::hal::HAL_INVALID_VALUE;
   }
 
   template<drivers::uart::Parity parity>
@@ -45,7 +43,7 @@ namespace platform::ll_drivers::uart
     else if constexpr(parity == drivers::uart::Parity::NONE)
       return USART_PARITY_NONE;
     else 
-      return platform::hal::uart::INVALID_PARITY;
+      return platform::hal::HAL_INVALID_VALUE;
   }
 
   template<drivers::uart::DataBits databits>
@@ -56,7 +54,7 @@ namespace platform::ll_drivers::uart
     else if constexpr(databits == drivers::uart::DataBits::D_9)
       return 9;
     else 
-      return platform::hal::uart::INVALID_DATABITS;
+      return platform::hal::HAL_INVALID_VALUE;
   }
 
   template<drivers::uart::StopBits stopbits>
@@ -65,7 +63,7 @@ namespace platform::ll_drivers::uart
     if constexpr(stopbits == drivers::uart::StopBits::S_1)
       return 1;
     else
-      return platform::hal::uart::INVALID_STOPBITS;
+      return platform::hal::HAL_INVALID_VALUE;
   }
 
   template<drivers::uart::FlowControl flow_control>
@@ -80,35 +78,6 @@ namespace platform::ll_drivers::uart
     else if constexpr(flow_control == drivers::uart::FlowControl::NONE)
       return USART_FLOWCONTROL_NONE;
     else 
-      return platform::hal::uart::INVALID_FLOW_CONTROL;
+      return platform::hal::HAL_INVALID_VALUE;
   }
-
-  using uart_flags_t = uint32_t;
-  using uart_irq_t = void(*)(void*, uart_flags_t);
-
-  struct STM32UartDriver : drivers::uart::UartDriver
-  {
-    platform::ll_drivers::dma::DmaStream* rx_dma;
-    platform::ll_drivers::dma::DmaStream* tx_dma;
-    uart_irq_t fwd_isr;
-    void* fwd_isr_ctx;
-
-    STM32UartDriver() //TODO: Add id to contructor
-      : rx_dma{nullptr}
-      , tx_dma{nullptr}
-      , fwd_isr{nullptr}
-      , fwd_isr_ctx{nullptr} {}
-  };
-
-  template<uint32_t UART_ID>
-  void configure_uart_gpio();
-
-  template<uint32_t UART_ID>
-  void configure_interrupts();
-
-  template<uint32_t UART_ID>
-  void attach_dma(STM32UartDriver*);
-
-  template<uint32_t UART_ID>
-  constexpr STM32UartDriver* get_driver();
 }
