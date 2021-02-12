@@ -11,11 +11,11 @@ using namespace std::literals;
 namespace console = utils::debug::console;
 
 namespace {
-#define ARRAY_LEN(x) ((sizeof(x)/sizeof(x[0])))
+  #define ARRAY_LEN(x) ((sizeof(x)/sizeof(x[0])))
 
-static constexpr std::string_view operation_succeed{"OK"};
-static constexpr std::string_view operation_failed{"ERROR"};
-static constexpr std::string_view operation_terminator{"\r\n"};
+  static constexpr std::string_view operation_succeed{"OK"};
+  static constexpr std::string_view operation_failed{"ERROR"};
+  static constexpr std::string_view operation_terminator{"\r\n"};
 
    //Handle from ISR
   static void handle_rx_end_wrapper(void* ctx, const size_t nbytes)
@@ -29,6 +29,18 @@ static constexpr std::string_view operation_terminator{"\r\n"};
     return rb.find(reinterpret_cast<const uint8_t*>(needle.data()), needle.size());
   }
 
+  static bool remove_from_buffer(const RingBuffer& rb, std::string_view payload)
+  {
+    auto iter = find_in_rb(rb, payload);
+
+    if (iter == rb.end())
+    {
+      return false;
+    }
+
+    std::fill_n(iter, operation_succeed.size(), '\0');
+    return true;
+  }
 }
 
 static volatile size_t rx_size = 0;
@@ -56,7 +68,7 @@ namespace devices::esp8266
 
   bool Esp8266Wlan::set_mode(const Mode& mode)
   {
-    console::print("[ESP8266] Esp8266Wlan::set_mode()\r\n");
+    trace(1, "[ESP8266] Esp8266Wlan::set_mode()\r\n");
     
     const auto command = CwModeCommand{mode};
 
@@ -76,32 +88,33 @@ namespace devices::esp8266
     //Wait for response
     while(rx_size < 5); 
 
-    console::print("[ESP8266] Response ready\r\n");
+    trace(3, "[ESP8266] Response readyyy\r\n");
 
-    //Find if command was sent back from the device ECHO MODE
-    auto cmdIter = find_in_rb(rx_rb_, command.command());
-    if (cmdIter == rx_rb_.end())
+    //Check echo command
+    if (!remove_from_buffer(rx_rb_, command.command()))
     {
-      console::print("[ESP8266] Command echo not found in buffer.\r\n");
+      trace_error("[ESP8266] Command echo not found in buffer.\r\n");
       return false;
     }
 
-    //Remove command from buffer
-    std::fill_n(cmdIter, command.command().size(), '\0');
-
-    if (auto okIter = find_in_rb(rx_rb_, operation_succeed); okIter != rx_rb_.end())
+    if (remove_from_buffer(rx_rb_, operation_succeed)) 
     {
-      console::print("[ESP8266] Operation succeeded\r\n");
-      std::fill_n(okIter, operation_succeed.size(), '\0');
+      trace(3, "[ESP8266] Operation succeeded\r\n");
+      
       return true;
     }
-    else if (auto errorIter = find_in_rb(rx_rb_, operation_failed); errorIter != rx_rb_.end())
+    else if (remove_from_buffer(rx_rb_, operation_failed))
     {
-      console::print("[ESP8266] Operation failed\r\n");
-      std::fill_n(okIter, operation_failed.size(), '\0');
+      trace_error("[ESP8266] Operation failed\r\n");
+
       return false;
     }
-
+    else 
+    {
+      trace_error("[ESP8266] Neither success nor faild response found in buffer.\r\n");
+      
+      return false;
+    }
     return false;
   }
 

@@ -14,6 +14,7 @@ drivers::gpio::GpioDriver* blue_led_driver{nullptr};
 drivers::gpio::GpioDriver* red_led1_driver{nullptr};
 drivers::gpio::GpioDriver* red_led2_driver{nullptr};
 drivers::gpio::GpioDriver* red_led3_driver{nullptr};
+drivers::gpio::GpioDriver* engine_gpio_driver{nullptr};
 
 drivers::uart::UartDriver* driver{nullptr};
 
@@ -36,12 +37,55 @@ void tx_completed([[maybe_unused]]drivers::uart::UartDriver* driver)
 namespace console = utils::debug::console;
 using namespace devices::esp8266;
 
+#include <libopencm3/stm32/flash.h>
+#include <libopencm3/cm3/systick.h>
+
+extern "C" {
+  void sys_tick_handler(void)
+  {
+    static volatile uint32_t idx = 0;
+
+    if (++idx == 1000 * 10)
+    {
+      // hal::gpio::toggle(red_led3_driver);
+      idx = 0;
+    }
+  }
+}
+
 int main()
 {
+  //Temporary, will be moved to HAL - currelty FCPU set to 100Mhz
+  auto clock = rcc_clock_scale{};
+  clock.pllm = 8;
+  clock.plln = 100; //336;
+  clock.pllp = 2; //4;
+  clock.pllq = 4; //7;
+  clock.pllr = 2; //0;
+  clock.pll_source = RCC_CFGR_PLLSRC_HSI_CLK;
+  clock.hpre = RCC_CFGR_HPRE_DIV_NONE; //?
+  clock.ppre1 = RCC_CFGR_PPRE_DIV_2; // ?
+  clock.ppre2 = RCC_CFGR_PPRE_DIV_NONE; // ?
+  clock.voltage_scale = PWR_SCALE1; //?
+  clock.flash_config = FLASH_ACR_DCEN | FLASH_ACR_ICEN |
+      FLASH_ACR_LATENCY_2WS;
+  clock.ahb_frequency  = 100000000;
+  clock.apb1_frequency = 50000000;
+  clock.apb2_frequency = 100000000;
+
+  rcc_clock_setup_pll(&clock);
+
+  systick_set_clocksource(STK_CSR_CLKSOURCE);
+  STK_CVR = 0;
+  systick_set_reload(rcc_ahb_frequency / 1000);
+
+
   // //Init & setup
   hal::gpio::init();
   hal::uart::init();
   hal::dma::init();
+
+
 
   constexpr auto blue_led_config = drivers::gpio::GpioDriverConfig<
     platform::config::BLUE_LED_GPIO,
@@ -67,15 +111,26 @@ int main()
     drivers::gpio::PullUpDown::PULLUP
   >{};
 
+  constexpr auto engine_gpio_cfg = drivers::gpio::GpioDriverConfig<
+    platform::config::ENGINE_GPIO,
+    drivers::gpio::Mode::OUTPUT,
+    drivers::gpio::PullUpDown::PULLUP
+  >{};
+
   blue_led_driver = hal::gpio::setup<decltype(blue_led_config)>();
   red_led1_driver = hal::gpio::setup<decltype(red_led1_config)>();
   red_led2_driver = hal::gpio::setup<decltype(red_led2_config)>();
   red_led3_driver = hal::gpio::setup<decltype(red_led3_config)>();
+  engine_gpio_driver = hal::gpio::setup<decltype(engine_gpio_cfg)>();
 
   hal::gpio::set(blue_led_driver);
   hal::gpio::set(red_led1_driver);
   hal::gpio::set(red_led2_driver);
   hal::gpio::set(red_led3_driver);
+  hal::gpio::set(engine_gpio_driver);
+
+  systick_counter_enable();
+	systick_interrupt_enable();
 
   //Setup Esp8266
   constexpr auto esp8266_gpio_rx = drivers::gpio::GpioDriverConfig<
@@ -132,7 +187,7 @@ int main()
 
   auto esp8266_wlan = Esp8266Wlan{esp8266_uart_driver};
   
-  esp8266_wlan.reset();
+  // esp8266_wlan.reset();
   esp8266_wlan.set_mode(devices::esp8266::Mode::Client);
 
   while(1)

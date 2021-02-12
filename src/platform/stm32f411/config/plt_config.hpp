@@ -9,6 +9,7 @@ namespace platform::config
   constexpr uint32_t RED_LED1_GPIO = 5;
   constexpr uint32_t RED_LED2_GPIO = 6;
   constexpr uint32_t RED_LED3_GPIO = 7;
+  constexpr uint32_t ENGINE_GPIO = 19;
 
   //Uart
   constexpr uint32_t SERIAL1 = USART1;
@@ -18,4 +19,6 @@ namespace platform::config
   constexpr uint32_t CONSOLE = USART2;
   constexpr uint32_t CONSOLE_GPIO_RX = 2;
   constexpr uint32_t CONSOLE_GPIO_TX = 3;
+
+
 }

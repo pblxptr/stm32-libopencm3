@@ -24,13 +24,30 @@ namespace {
   {
     if (func_ptr != nullptr)
     {
-      func_ptr(args...); //TODO: add std::forward to keep parameters types.
+      func_ptr(args...); //Todo add forward
     }
   }
 }
 
 namespace platform::hal::uart
 { 
+  using uart_flags_t = uint32_t;
+  using uart_irq_t = void(*)(void*, uart_flags_t);
+
+  struct STM32UartDriver : drivers::uart::UartDriver
+  {
+    platform::ll_drivers::dma::DmaStream* rx_dma;
+    platform::ll_drivers::dma::DmaStream* tx_dma;
+    uart_irq_t fwd_isr;
+    void* fwd_isr_ctx;
+
+    STM32UartDriver() //TODO: Add id to contructor
+      : rx_dma{nullptr}
+      , tx_dma{nullptr}
+      , fwd_isr{nullptr}
+      , fwd_isr_ctx{nullptr} {}
+  };
+
   inline void _hal_handle_uart_dma_rx_isr(void* ctx, dma_flags_t flags)
   {
     STM32UartDriver* driver = reinterpret_cast<STM32UartDriver*>(ctx);
@@ -69,16 +86,6 @@ namespace platform::hal::uart
       check_and_call(driver->rx_end_cb, driver->rx_event_ctx, nbytes);
     }
     //Todo: Add error handling
-  }
-
-  inline void init()
-  {
-    rcc_periph_clock_enable(RCC_USART1);
-    rcc_periph_clock_enable(RCC_USART2);
-    rcc_periph_clock_enable(RCC_USART3);
-    rcc_periph_clock_enable(RCC_UART4);
-    rcc_periph_clock_enable(RCC_UART5);
-    rcc_periph_clock_enable(RCC_USART6);
   }
 
   template<class TConfig>
