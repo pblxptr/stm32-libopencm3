@@ -1,3 +1,0 @@
-loadFile /home/pp/STM32/HenhouseCtrl/firmware/build/bin/stm32-template.hex
-r
-exit
