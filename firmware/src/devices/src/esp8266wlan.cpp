@@ -78,6 +78,7 @@ namespace devices::esp8266
   bool Esp8266Wlan::execute_blocking_operation(const CwModeCommand& command)
   {
     //Serialize command
+
     tx_rb_.clear();
     command.serialize(tx_rb_);
     tx_rb_.write(operation_terminator.data(), operation_terminator.size());

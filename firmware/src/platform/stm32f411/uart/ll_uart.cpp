@@ -1,10 +1,12 @@
-#include<platform/hal/uart.hpp>
+#include <platform/hal/uart.hpp>
+#include <ll_uart.hpp>
  
 extern "C" {
   #include <libopencm3/stm32/usart.h>
 }
 
 using namespace drivers::uart;
+using namespace platform::ll_drivers::uart;
 
 namespace {
   static inline void uart_clear_idle_flag(uint32_t uart_id)

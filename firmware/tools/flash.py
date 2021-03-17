@@ -35,7 +35,6 @@ def flash(binary_path, target):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser = argparse.ArgumentParser()
   parser.add_argument("binary_path", help="Path to the hex file that contains binary code.")
   parser.add_argument("target", help="Flashing target e.g. STM32F103C8T6.")
   args = parser.parse_args()

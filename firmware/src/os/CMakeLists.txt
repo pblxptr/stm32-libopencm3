@@ -1,6 +1,5 @@
 set(SOURCES
-  src/Os.cpp
-  src/Timer.cpp
+  src/timer.cpp
 )
 
 add_library(${OS_BIN} STATIC ${SOURCES})

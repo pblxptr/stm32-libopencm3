@@ -1,11 +1,12 @@
 #pragma once
 
-#include <stdint.h>
 #include <drivers/uart.hpp>
+
+#include <stdint.h>
+#include <cstddef>
+
 #include <ll_uart.hpp>
 #include <ll_uart_mapping.hpp>
-
-#include <cstddef>
 
 extern "C" {
   #include <libopencm3/stm32/usart.h>

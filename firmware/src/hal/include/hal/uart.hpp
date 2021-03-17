@@ -1,7 +1,7 @@
 #pragma once
 
-#include<drivers/uart.hpp>
-#include<platform/hal/uart.hpp>
+#include <drivers/uart.hpp>
+#include <platform/hal/uart.hpp>
 
 #include<stdint.h>
 
