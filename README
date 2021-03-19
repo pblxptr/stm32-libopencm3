@@ -1,0 +1,2 @@
+Connect SSH to "Team Server": ssh pp@192.168.0.115's
+Listen to logs from device: picocom -b 9600 /dev/ttyUSB0 -vv
