@@ -1,30 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project(stm32-template)
+project(Hh-firmware)
 
-# COMPILER JUST TEMPORARY TODO: REMOVE!!!
-# set(CMAKE_ASM_COMPILER "/usr/bin/arm-none-eabi-gcc")
-# set(CMAKE_C_COMPILER "/usr/bin/arm-none-eabi-gcc")
-# set(CMAKE_CXX_COMPILER "/usr/bin/arm-none-eabi-g++")
-set(CMAKE_CXX_CPPCHECK "cppcheck")
-
-# CMAKE MODULES
-include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
-
-# GENERAL PATHS 
-set(LIBRARY_DIR ${PROJECT_SOURCE_DIR}/lib)
-set(BOARD_DIR ${PROJECT_SOURCE_DIR}/src/board/${BOARD})
-set(TOOLS_PATH ${PROJECT_SOURCE_DIR}/tools)
-
-# TOOLCHAIN
-include(${TOOLS_PATH}/toolchains/${TOOLCHAIN}_toolchain.cmake)
-
-# PORT CONFIGURATIOM 
-include(${BOARD_DIR}/board.cmake)
-
-# COMPILER CONFIGURATION
-
-# --> DEFINITIONS <-- #
-add_compile_definitions(TRACE_LEVEL=${TRACE_LEVEL})
+include(common.cmake)
 
 set(COMPILER_CXX_FLAGS "-fno-use-cxa-atexit -O3 -fno-exceptions -g -std=c++17")
 set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -Wall -Wextra -save-temps -pedantic-errors -fdump-tree-all")
@@ -36,14 +13,4 @@ set(CMAKE_C_FLAGS "${COMPILER_FLAGS} ${ARCH_FLAGS}")
 set(CMAKE_CXX_FLAGS "${COMPILER_CXX_FLAGS} ${COMPILER_FLAGS} ${ARCH_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS} ${ARCH_FLAGS}")
 
-### EXTERNAL LIBRARIES
-include(${LIBRARY_DIR}/libraries.cmake)
-
-# SUBDIRECTORIS 
 add_subdirectory(src)
-
-# CUSTOM COMMANDS 
-# add_custom_target(flash
-#   COMMAND python ${TOOLS_PATH}/flash.py ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_PROJECT_NAME}.hex ${TARGET_MCU}
-#   COMMENT "CMake flashing target."
-# )

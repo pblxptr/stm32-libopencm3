@@ -1,14 +1,4 @@
 cmake_minimum_required(VERSION 3.16)
-
-set(APP_BIN       ${CMAKE_PROJECT_NAME})
-set(UTILS_BIN     ${CMAKE_PROJECT_NAME}_utils)
-set(DRIVERS_BIN   ${CMAKE_PROJECT_NAME}_drivers)
-set(OS_BIN        ${CMAKE_PROJECT_NAME}_os)
-set(BOARD_BIN      ${CMAKE_PROJECT_NAME}_board)
-set(PLATFORM_BIN  ${CMAKE_PROJECT_NAME}_${PLATFORM})
-set(HAL_BIN       ${CMAKE_PROJECT_NAME}_hal)
-set(DEVICES_BIN  ${CMAKE_PROJECT_NAME}_devices)
-
 add_subdirectory(app)
 add_subdirectory(utils)
 add_subdirectory(drivers)

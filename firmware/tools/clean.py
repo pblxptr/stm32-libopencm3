@@ -36,8 +36,8 @@ def erase_build(build_dir):
     continue
 
 def main():
-  build_dir = os.environ['BUILDDIR']
-  src_dir = os.environ['SOURCEROOT']
+  build_dir = os.environ['BUILD_DIR']
+  src_dir = os.environ['SOURCE_DIR']
 
   if src_dir is None or build_dir is None:
     raise Exception("Invalid source or build dir.")
