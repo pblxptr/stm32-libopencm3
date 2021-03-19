@@ -17,6 +17,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS}")
 
 include($ENV{REPO_ROOT}/common.cmake)
 
+
 ### SOURCES ###
 add_subdirectory($ENV{SOURCE_DIR}/os os)
 add_subdirectory($ENV{SOURCE_DIR}/os/test os-tests)
@@ -31,8 +32,11 @@ add_subdirectory($ENV{SOURCE_DIR}/hal hal)
 add_subdirectory($ENV{SOURCE_DIR}/platform/${PLATFORM} platform)
 
 add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
+
+add_dependencies(${CMAKE_PROJECT_NAME} googletest)
+
 target_link_libraries(${CMAKE_PROJECT_NAME}
-  ${GTEST_BIN} pthread
+  gtest pthread
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-os-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-drivers-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-utils-tests
