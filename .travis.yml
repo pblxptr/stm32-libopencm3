@@ -25,5 +25,6 @@ script:
   - gcc -v && g++ -v && cmake --version
   # Run your build commands next
   - echo $BUILD_DIR
+  - ls $SOURCE_DIR
   - cd $BUILDDIR
   - run_ts 
