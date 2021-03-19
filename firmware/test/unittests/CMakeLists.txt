@@ -5,10 +5,32 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittests_bin)
 
 set(CMAKE_CXX_FLAGS "-g -std=c++17")
 
+set(COMPILER_CXX_FLAGS "-fno-use-cxa-atexit -O3 -fno-exceptions -g -std=c++17")
+set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -Wall -Wextra -save-temps -pedantic-errors -fdump-tree-all ")
+
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+set(CMAKE_C_FLAGS "${COMPILER_FLAGS}")
+set(CMAKE_CXX_FLAGS "${COMPILER_CXX_FLAGS} ${COMPILER_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS}")
+
 include($ENV{REPO_ROOT}/common.cmake)
 
 ### SOURCES ###
-add_subdirectory($ENV{SOURCE_DIR}/os xd)
-add_subdirectory($ENV{SOURCE_DIR}/os/test dd)
+add_subdirectory($ENV{SOURCE_DIR}/os os)
+add_subdirectory($ENV{SOURCE_DIR}/os/test os-tests)
+
+add_subdirectory($ENV{SOURCE_DIR}/drivers drivers)
+add_subdirectory($ENV{SOURCE_DIR}/drivers/test drivers-tests)
+
+add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
+target_link_libraries(${CMAKE_PROJECT_NAME}
+  ${GTEST_BIN} pthread
+  -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-os-tests
+  -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-drivers-tests
+  -Wl,--no-whole-archive
+)
+
 
 

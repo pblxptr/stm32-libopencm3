@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(SOURCES
-  src/timer_tests.cpp
+  src/timer_test.cpp
+  src/list_test.cpp
 )
 
-include_directories(${GTEST_INCLUDE})
-include_directories(${GMOCK_INCLUDE})
+add_library(${CMAKE_PROJECT_NAME}-os-tests ${SOURCES})
 
-add_executable(Os_tests ${SOURCES})
+target_include_directories(${CMAKE_PROJECT_NAME}-os-tests PRIVATE ../include)
+target_include_directories(${CMAKE_PROJECT_NAME}-os-tests PRIVATE ${GTEST_INCLUDE})
+target_include_directories(${CMAKE_PROJECT_NAME}-os-tests PRIVATE ${GMOCK_INCLUDE})
 
-# # target_link_libraries(${CMAKE_PROJECT_NAME} gtest_main)
+target_link_libraries(${CMAKE_PROJECT_NAME}-os-tests ${OS_BIN})

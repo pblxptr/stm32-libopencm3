@@ -22,7 +22,7 @@ def build_unittests(cfg):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument("--target", required=True, help="Target: prod, unittests .")
+  parser.add_argument("--solution", required=True, help="Solution: prod, unittests .")
   parser.add_argument("--board", required=True, help="Select board.")
   parser.add_argument("--toolchain", required=True, help="Toolchain, e.g. x86_64, arm.")
   parser.add_argument("--trace_level", help="Trace level.")
@@ -37,7 +37,7 @@ def main():
     'board' : args.board,
     'toolchain' : args.toolchain,
     'trace_level' : args.trace_level,
-    'target' : args.target
+    'solution' : args.solution
   }
 
   build_dir = os.environ['BUILD_DIR']
@@ -48,12 +48,12 @@ def main():
   print("Configuration:")
   print("-- Board: {0}".format(cfg['board']))
   print("-- Toolchain: {0}".format(cfg['toolchain']))
-  print("-- Build target: {0}".format(cfg['target']))
+  print("-- Build solution: {0}".format(cfg['solution']))
   print("-- Trace level: {0}".format(cfg['trace_level']))
 
-  if cfg['target'] == 'app':
+  if cfg['solution'] == 'app':
     build_app(cfg)
-  elif cfg['target'] == 'unittests':
+  elif cfg['solution'] == 'unittests':
     build_unittests(cfg)
 
 if __name__ == "__main__":

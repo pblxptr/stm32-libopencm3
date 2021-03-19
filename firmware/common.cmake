@@ -4,13 +4,12 @@ set(CMAKE_CXX_CPPCHECK "cppcheck")
 
 ### GENERAL PATHS ###
 set(BOARD_DIR $ENV{REPO_ROOT}/src/board/${BOARD})
-set(TOOLS_DIR $ENV{REPO_ROOT}/tools)
 
 ### CMAKE MODULES ###
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
 ### TOOLCHAIN ###
-include(${TOOLS_DIR}/toolchains/${TOOLCHAIN}_toolchain.cmake)
+include($ENV{TOOLS_DIR}/toolchains/${TOOLCHAIN}_toolchain.cmake)
 
 ### PORT CONFIGURATIOM ### 
 include(${BOARD_DIR}/board.cmake)

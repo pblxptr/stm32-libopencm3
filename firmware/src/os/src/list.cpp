@@ -14,7 +14,7 @@ namespace
   }
 }
 
-namespace os::utils::list 
+namespace os::utils
 {
   void list_init(List* l)
   {
