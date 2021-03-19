@@ -21,6 +21,6 @@ script:
   # Check versions of gcc, g++ and cmake
   - gcc -v && g++ -v && cmake --version
   # Run your build commands next
-  - source tools/build-env.sh
+  - source firmware/tools/build-env.sh
   - cd $BUILDDIR
   - run_ts 
