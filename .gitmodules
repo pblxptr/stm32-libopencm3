@@ -1,7 +1,0 @@
-[submodule "firmware/lib/libopencm3"]
-	path = firmware/lib/libopencm3
-	url = git@github.com:libopencm3/libopencm3.git
-
-[submodule "firmware/lib/googletest"]
-	path = firmware/lib/googletest
-	url = git@github.com:googletest/googletest.git
