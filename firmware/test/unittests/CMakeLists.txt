@@ -24,11 +24,18 @@ add_subdirectory($ENV{SOURCE_DIR}/os/test os-tests)
 add_subdirectory($ENV{SOURCE_DIR}/drivers drivers)
 add_subdirectory($ENV{SOURCE_DIR}/drivers/test drivers-tests)
 
+add_subdirectory($ENV{SOURCE_DIR}/utils utils)
+add_subdirectory($ENV{SOURCE_DIR}/utils/test utils-tests)
+
+add_subdirectory($ENV{SOURCE_DIR}/hal hal)
+add_subdirectory($ENV{SOURCE_DIR}/platform/${PLATFORM} platform)
+
 add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
 target_link_libraries(${CMAKE_PROJECT_NAME}
   ${GTEST_BIN} pthread
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-os-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-drivers-tests
+  -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-utils-tests
   -Wl,--no-whole-archive
 )
 

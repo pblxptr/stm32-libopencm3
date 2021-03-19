@@ -22,12 +22,12 @@ namespace platform::hal::uart
     return nullptr;
   }
 
-  inline void receive(drivers::uart::UartDriver* driver, uint8_t* buff, const size_t sz)
+  inline void receive([[maybe_unused]] drivers::uart::UartDriver* driver, [[maybe_unused]]  uint8_t* buff, [[maybe_unused]]  const size_t sz)
   {
 
   }
 
-  inline void send(drivers::uart::UartDriver* driver, uint8_t* buff, const size_t sz)
+  inline void send([[maybe_unused]] drivers::uart::UartDriver* driver, [[maybe_unused]]  uint8_t* buff, [[maybe_unused]]  const size_t sz)
   {
 
   }

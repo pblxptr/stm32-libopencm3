@@ -4,65 +4,72 @@ using namespace os::utils;
 
 namespace 
 {
-  void put_in_between(List::iter_t left, List::iter_t right, List* elem)
-  {
-    left->next = elem;
-    right->prev = elem;
 
-    elem->prev = left;
-    elem->next = right; 
-  }
 }
 
 namespace os::utils
 {
-  void list_init(List* l)
+  List::List()
   {
-    l->prev = l;
-    l->next = l;
+    prev_ = this;
+    next_ = this;
   }
 
-  List::iter_t list_begin(List* l)
+  List::iter_t List::begin() const
   {
-    return l->next;
+    return next_;
   }
 
-  List::iter_t list_end(List* l)
+  List::iter_t List::begin()
   {
-    return l;
+    return next_;
   }
 
-  List::iter_t list_next(List::iter_t iter)
+  List::iter_t List::end()
   {
-    return iter->next;
+    return this;
   }
 
-  bool list_empty(const List* l)
+  List::iter_t List::next(const iter_t iter) const
   {
-    return l->next == l;
+    return iter->next_;
   }
 
-  void list_append(List* l, List* item)
+  bool List::empty() const
   {
-    const List::iter_t e = list_end(l);
+    return next_ == this;
+  }
+  
+  void List::append(List* item)
+  {
+    const List::iter_t e = end();
 
-    put_in_between(e->prev, e, item);
+    put_in_between(e->prev_, e, item);
   }
 
-  void list_insert(List::iter_t iter, List* item)
+  void List::insert(List::iter_t iter, List* item)
   {
-    item->prev = iter->prev;
-    item->next = iter;
+    item->prev_ = iter->prev_;
+    item->next_ = iter;
 
-    iter->prev->next = item;
+    iter->prev_->next_ = item;
   }
 
-  void list_remove(List::iter_t iter)
+  void List::remove(List::iter_t iter)
   {
     // i1 -> i2 -> i3
     // i1 -> i3
 
-    iter->prev->next = iter->next;
-    iter->next->prev = iter->prev;
+    iter->prev_->next_ = iter->next_;
+    iter->next_->prev_ = iter->prev_;
+  }
+
+  void List::put_in_between(List::iter_t left, List::iter_t right, List* elem)
+  {
+    left->next_ = elem;
+    right->prev_ = elem;
+
+    elem->prev_ = left;
+    elem->next_ = right; 
   }
 }

@@ -1,4 +1,4 @@
-#include <RingBuffer.hpp>
+#include <utils/ring_buffer.hpp>
 
 #include <gtest/gtest.h>
 #include <string_view>
@@ -45,7 +45,7 @@ TEST_F(RingBufferTest, WhenWritingInOverflowThenOldDataShouldBeOverrwritten)
   //Act
   sut.write(data_that_will_be_overrwritten);
 
-  for (auto i = 0; i < sizeof(data_buffer); i++)
+  for (size_t i = 0; i < sizeof(data_buffer); i++)
   {
     sut.write(data_will_overwrite);
   }

@@ -15,7 +15,8 @@ files_to_remove = [
 
 extensions_to_remove = [
   '.ii',
-  '.s'
+  '.s',
+  '.a'
 ]
 
 def show_hello():

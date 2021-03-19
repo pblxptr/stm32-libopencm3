@@ -8,13 +8,28 @@ struct ListTest : public ::testing::Test
 
 };
 
-TEST_F(ListTest, WhenListIsInitializedItShouldBeEmpty)
+TEST_F(ListTest, WhenListIsInitializedThenItShouldBeEmpty)
 {
   //Arrange
-  List sut;
-  list_init(&sut);
+  List sut{};
   
   //Act
+  const bool is_empty = sut.empty();
 
   //Assert
+  ASSERT_TRUE(is_empty);
+}
+
+TEST_F(ListTest, WhenListHasAtLeastOneItemThenItShouldNotBeEmpty)
+{
+  //Arrange
+  List sut{};
+  List item;
+  
+  //Act
+  sut.append(&item);
+  const bool is_empty = sut.empty();
+
+  //Assert
+  ASSERT_FALSE(is_empty);
 }
