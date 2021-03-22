@@ -15,7 +15,7 @@ set(CMAKE_C_FLAGS "${COMPILER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${COMPILER_CXX_FLAGS} ${COMPILER_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS}")
 
-include($ENV{REPO_ROOT}/common.cmake)
+include($ENV{CMAKE_ADDONS}/common.cmake)
 
 ### EXTERNAL LIBRARIES ###
 include($ENV{CMAKE_ADDONS}/unittests_external_libraries.cmake)

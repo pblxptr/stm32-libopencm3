@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Hh-firmware)
 
-include(common.cmake)
+include($ENV{CMAKE_ADDONS}/common.cmake)
 
 ### EXTERNAL LIBRARIES ###
 include($ENV{CMAKE_ADDONS}/app_external_libraries.cmake)
