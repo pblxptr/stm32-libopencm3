@@ -12,6 +12,8 @@ addons:
       - gcc-8
       - g++-8
       - cmake
+      - valgrind
+      - cppcheck
 
 before_script:
   - source firmware/tools/build-env.sh
