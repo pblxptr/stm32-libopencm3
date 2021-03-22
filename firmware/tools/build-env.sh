@@ -17,6 +17,7 @@ export UNITTESTS_SOLUTION_CMAKE_DIR_PATH="$TEST_DIR/unittests"
 ### ALIASES ####
 alias build="$REPO_ROOT/tools/build.py"
 alias clean="$REPO_ROOT/tools/clean.py"
+alias totalclean="$REPO_ROOT/tools/clean.py --totalclean"
 
 ### BUILD ALIASES ###
 alias buildapp="cd "$BUILD_DIR" && build --solution=app --board=black_pill --toolchain=arm --trace_level=TRACE_LVL_1"

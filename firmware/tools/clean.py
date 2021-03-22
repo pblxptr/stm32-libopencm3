@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import shutil
+import argparse
 
 directories_to_remove = [
   'CMakeFiles'
@@ -36,15 +37,7 @@ def erase_build(build_dir):
     shutil.rmtree(str(dir_path))
     continue
 
-def main():
-  build_dir = os.environ['BUILD_DIR']
-  src_dir = os.environ['SOURCE_DIR']
-
-  if src_dir is None or build_dir is None:
-    raise Exception("Invalid source or build dir.")
-
-  erase_build(build_dir)
-
+def clean_sources():
   for subdir, dirs, files in os.walk(src_dir):
     dir_path = Path(subdir)
     if dir_path.name in directories_to_remove:
@@ -58,7 +51,27 @@ def main():
         print("Removing file: {0}".format(filepath))
         os.remove(str(filepath))
 
+def invoke_total_clean():
+  lib_path = os.environ['EXTERNAL_LIB_DIR']
+  shutil.rmtree(lib_path)
 
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--totalclean", action='store_true')
+  args = parser.parse_args()
+
+  build_dir = os.environ['BUILD_DIR']
+  src_dir = os.environ['SOURCE_DIR']
+
+  if src_dir is None or build_dir is None:
+    raise Exception("Invalid source or build dir.")
+
+  erase_build(build_dir)
+
+  totalclean = args.totalclean
+
+  if totalclean is not None:
+    invoke_total_clean()
 
 if __name__ == "__main__":
   try:

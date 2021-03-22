@@ -36,7 +36,7 @@ add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
 add_dependencies(${CMAKE_PROJECT_NAME} googletest)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
-  gtest pthread
+  ${GTEST_BIN} pthread
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-os-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-drivers-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-utils-tests
