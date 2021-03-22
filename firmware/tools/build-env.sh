@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export REPO_ROOT="$(dirname "$(dirname "$(readlink -fm "$0")")")"
+export REPO_ROOT=""$(dirname "$(readlink -fm build-env.sh)")
 export BUILD_DIR="$REPO_ROOT/build"
 export SOURCE_DIR="$REPO_ROOT/src"
 export TEST_DIR="$REPO_ROOT/test"
@@ -16,5 +16,5 @@ alias build="$REPO_ROOT/tools/build.py"
 alias clean="$REPO_ROOT/tools/clean.py"
 
 ### BUILD ALIASES ###
-alias buildapp='build --solution=app --board=black_pill --toolchain=arm --trace_level=TRACE_LVL_1'
-alias run_ts='build --solution=unittests --board=linux --toolchain=x86_64 --trace_level=TRACE_LVL_1 && ./bin/Henhouse-UnitTests'
+alias buildapp="cd "$BUILD_DIR" && build --solution=app --board=black_pill --toolchain=arm --trace_level=TRACE_LVL_1"
+alias run_ts="cd "$BUILD_DIR" && build --solution=unittests --board=linux --toolchain=x86_64 --trace_level=TRACE_LVL_3 && ./bin/Henhouse-UnitTests"

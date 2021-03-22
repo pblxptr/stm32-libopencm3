@@ -26,5 +26,4 @@ script:
   # Run your build commands next
   - echo $BUILD_DIR
   - ls $SOURCE_DIR
-  - cd $BUILDDIR
-  - run_ts 
+  - cd firmware && ./run_test.sh
