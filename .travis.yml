@@ -24,4 +24,5 @@ script:
   # Check versions of gcc, g++ and cmake
   - gcc -v && g++ -v && cmake --version
   # Run your build commands next
+  - cmake --version
   - cd firmware && ./run_test.sh
