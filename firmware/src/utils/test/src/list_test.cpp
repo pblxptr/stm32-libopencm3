@@ -17,7 +17,7 @@ class ListTests : public ::testing::Test
 
 TEST_F(ListTests, ConfiureAndRunEmptyTest)
 {
-  List_t l{};
+  List l{};
 
   auto b = l.begin();
   auto e = l.end();
@@ -55,7 +55,7 @@ TEST_F(ListTests, ConfiureAndRunEmptyTest)
 TEST_F(ListTests, WhenTheListIsEmptyThenBeginAndEndShouldPointToItself)
 {
   // Arrange
-  auto list = List_t{};
+  auto list = List{};
   
   //Act
   auto b = list.begin();
@@ -69,7 +69,7 @@ TEST_F(ListTests, WhenTheListIsEmptyThenBeginAndEndShouldPointToItself)
 TEST_F(ListTests, WhenAppendElementToTheListThenBeginAndEndShouldPointToIt)
 {
   //Arrange
-  auto list = List_t{};
+  auto list = List{};
   auto elem = Dummy{};
 
   //Act
@@ -89,7 +89,7 @@ TEST_F(ListTests, WhenInsertingItemThenItShouldReplaceThePositionOfIterator)
   auto e2 = Dummy{ 20, {} };
 
   //Act
-  auto l = List_t{};
+  auto l = List{};
   l.append(make_link_ptr(e1));
 
   auto b = l.begin();
@@ -115,7 +115,7 @@ TEST_F(ListTests, WhenInsertingElementAtLastValidPositionItTheLastElementShouldB
   auto e1 = Dummy{ 10, {} };
   auto e2 = Dummy{ 20, {} };
   auto e3 = Dummy{ 30, {} };
-  auto l = List_t{};
+  auto l = List{};
 
   //Act
   l.append(make_link_ptr(e1));
@@ -138,7 +138,7 @@ TEST_F(ListTests, WhenErasingElementFromListThenItShouldDisappearFromListAndTheN
   auto e3 = Dummy{ 30, {} };
 
   //Act
-  auto l = List_t{};
+  auto l = List{};
   l.append(make_link_ptr(e1));
   l.append(make_link_ptr(e2));
   l.append(make_link_ptr(e3));
@@ -159,7 +159,7 @@ TEST_F(ListTests, WhenErasingLastElementThenItShouldBeRemovedFromListAndEndItera
   auto e3 = Dummy{ 30, {} };
 
   //Act
-  auto l = List_t{};
+  auto l = List{};
   l.append(make_link_ptr(e1));
   l.append(make_link_ptr(e2));
   l.append(make_link_ptr(e3));
@@ -178,7 +178,7 @@ TEST_F(ListTests, WhenInsertingElementToTheEndThenTheItratorsShouldPointCorrectl
   auto e1 = Dummy{ 10, {} };
   auto e2 = Dummy{ 20, {} };
   auto e3 = Dummy{ 30, {} };
-  auto l = List_t{};
+  auto l = List{};
 
   auto it = l.end();
   l.insert(it, make_link_ptr(e1));

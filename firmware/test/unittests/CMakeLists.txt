@@ -39,6 +39,7 @@ add_dependencies(${CMAKE_PROJECT_NAME} googletest)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
   ${GTEST_BIN} pthread
+  ${OS_BIN}
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-os-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-drivers-tests
   -Wl,--whole-archive ${CMAKE_PROJECT_NAME}-utils-tests

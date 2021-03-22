@@ -3,13 +3,14 @@
 namespace utils::containers {
 #include <stdint.h>
 
-class List_t;
+class List;
 class ListNode_t;
 
 #define container_of(ptr, type, member) ((type*) \
   ((const char*)ptr - \
   (sizeof(type) - sizeof(((type*)(ptr))->member))))
 
+#define make_link(obj) (utils::containers::ListNode_t*)(&(obj)->node)
 #define make_link_ptr(obj) (utils::containers::ListNode_t*)(&(obj).node)
 #define make_link_ref(obj) (utils::containers::ListNode_t&)((obj).node)
 #define it_to_ptr(it) (&*it)
@@ -26,14 +27,14 @@ constexpr inline ListNode_t& node_link_r(T& obj)
   return obj.node;
 }
 
-class List_t;
+class List;
 class ListIterator;
 
 class ListNode_t 
 {
   ListNode_t* prev_;
   ListNode_t* next_;
-  friend List_t;
+  friend List;
   friend ListIterator;
 public:
   ListNode_t()
@@ -79,7 +80,7 @@ private:
   pointer elem_;
 };
 
-class List_t //Rename to List
+class List //Rename to List
 {
 public: 
   using iterator = ListIterator::iterator;
@@ -89,10 +90,10 @@ private:
   uint32_t size_;
 
 public:
-  List_t()
+  List()
     : size_{0}{}
-  List_t(const List_t&) = delete;
-  List_t& operator=(const List_t&) = delete;
+  List(const List&) = delete;
+  List& operator=(const List&) = delete;
 
   iterator begin() { return iterator(shadowNode_.next_); }
   iterator end()  { return iterator(&shadowNode_); }

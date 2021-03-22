@@ -1,128 +1,114 @@
-#include <internal/timer_internal.hpp>
-#include <timer.hpp>
+#include <os/internal/timer_internal.hpp>
+#include <os/timer.hpp>
 
 #include <stdint.h>
 #include <functional>
 
-#include <list.hpp>
-
 using namespace os::timer;
-using namespace os::utils;
+using namespace utils::containers;
 
 namespace {
   ticks_t ticks = 0; //1 tick -> 1 millisecond
   List timers;
 
-//   void add_timer(os::timer::Timer* new_timer)
-//   {
-//     if (list_empty(&timers))
-//     {
-//       list_append(&timers, &new_timer->list);
+  void add_timer(os::timer::Timer* new_timer)
+  {
+    if (timers.empty())
+    {
+      timers.append(make_link(new_timer));
 
-//       return;
-//     }
+      return;
+    }
 
-//     auto iter = list_begin(&timers);
+    for (auto iter = timers.begin(); iter != timers.end();  ++iter)
+    {
+      const Timer* timer = container_of(it_to_ptr(iter), Timer, node); 
 
-//     while (iter != list_end(&timers))
-//     {
-//       const Timer* timer = container_of(iter, Timer, list); 
+      if (new_timer->timeout <= timer->timeout)
+      {
+        timers.insert(iter, make_link(new_timer));
 
-//       if (new_timer->timeout <= timer->timeout)
-//       {
-//         list_insert(iter, &new_timer->list);
+        return;
+      }
+    }
+  }
 
-//         return;
-//       }
+  void dispatch_timer(Timer* timer)
+  {
+    if (timer->cb != nullptr)
+    {
+      std::invoke(timer->cb);
+    }
+  }
 
-//       iter = list_next(iter);
-//     }
-//   }
+  void update_timers(const ticks_t substract_ticks)
+  {
+    for (auto& t : timers)
+    {
+      Timer* timer = container_of(&t, Timer, node);
+      timer->timeout -= substract_ticks;
+    }
+  }
 
-//   void dispatch_timer(Timer* timer)
-//   {
-//     if (timer->cb != nullptr)
-//     {
-//       std::invoke(timer->cb);
-//     }
-//   }
+  void check_timers()
+  {
+    if (timers.empty())
+    {
+      return;
+    }
 
-//   void update_timers(const ticks_t substract_ticks)
-//   {
-//     List::iter_t iter = list_begin(&timers);
+    for (auto iter = timers.begin(); iter != timers.end();  ++iter)
+    {
+      Timer* timer = container_of(it_to_ptr(iter), Timer, node);
+
+      if (timer->timeout <= ticks)
+      {
+        const ticks_t substract_ticks = timer->timeout;
+
+        dispatch_timer(timer);
+        timers.erase(iter);
+        update_timers(substract_ticks);
+
+        return;
+      }
+    }
+  }
+
+}
+
+namespace os::timer 
+{
+  // INTERNAL
+  void init()
+  {
+  }
+
+  void notify_tick()
+  {
+    ++ticks;
+
+    check_timers();
+  }
+
+  // PUBLIC
+  void request_timer(Timer* timer, const std::chrono::milliseconds& duration, timeout_cb_t cb)
+  {
+    if (timer == nullptr)
+      return;
     
-//     while (iter != list_end(&timers))
-//     {
-//       Timer* timer = container_of(iter, Timer, list);
-//       timer->timeout -= substract_ticks;
+    timer->cb = cb;
+    timer->timeout = ticks + duration.count();
 
-//       iter = list_next(iter);
-//     }
-//   }
+    add_timer(timer);
+  }
 
-//   void check_timers()
-//   {
-//     if (list_empty(&timers))
-//     {
-//       return;
-//     }
+  void request_timer(Timer* timer, const std::chrono::seconds& duration, timeout_cb_t cb)
+  {
+    request_timer(timer, std::chrono::duration_cast<std::chrono::milliseconds>(duration), cb);
+  }
 
-//     auto iter = list_begin(&timers);
-
-//     while (iter != list_end(&timers))
-//     {
-//       Timer* timer = container_of(iter, Timer, list);
-
-//       if (timer->timeout <= ticks)
-//       {
-//         const ticks_t substract_ticks = timer->timeout;
-
-//         dispatch_timer(timer);
-//         list_remove(iter);
-//         update_timers(substract_ticks);
-
-//         return;
-//       }
-
-//       iter = list_next(iter);
-//     }
-//   }
-// }
-
-// namespace os::timer 
-// {
-//   // INTERNAL
-//   void init()
-//   {
-//     list_init(&timers);
-//   }
-
-//   void notify_tick()
-//   {
-//     ++ticks;
-
-//     check_timers();
-//   }
-
-//   // PUBLIC
-//   void request_timer(Timer* timer, const std::chrono::milliseconds& duration, timeout_cb_t cb)
-//   {
-//     if (timer == nullptr)
-//       return;
-    
-//     timer->cb = cb;
-//     timer->timeout = ticks + duration.count();
-
-//     add_timer(timer);
-//   }
-
-//   void request_timer(Timer* timer, const std::chrono::seconds& duration, timeout_cb_t* cb)
-//   {
-//     request_timer(timer, std::chrono::duration_cast<std::chrono::milliseconds>(duration), cb);
-//   }
-
-//   void request_timer(Timer* timer, const std::chrono::minutes& duration, timeout_cb_t* cb)
-//   {
-//     request_timer(timer, std::chrono::duration_cast<std::chrono::milliseconds>(duration), cb);
-//   }
+  void request_timer(Timer* timer, const std::chrono::minutes& duration, timeout_cb_t cb)
+  {
+    request_timer(timer, std::chrono::duration_cast<std::chrono::milliseconds>(duration), cb);
+  }
 }
