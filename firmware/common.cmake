@@ -17,9 +17,6 @@ include(${BOARD_DIR}/board.cmake)
 ### COMPILE DEFINITIONS ###
 add_compile_definitions(TRACE_LEVEL=${TRACE_LEVEL})
 
-### EXTERNAL LIBRARIES ###
-include($ENV{REPO_ROOT}/external_libraries.cmake)
-
 ### PROJECT PACKAGES ###
 set(APP_BIN       ${CMAKE_PROJECT_NAME})
 set(UTILS_BIN     ${CMAKE_PROJECT_NAME}_utils)

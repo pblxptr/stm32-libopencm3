@@ -17,6 +17,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS}")
 
 include($ENV{REPO_ROOT}/common.cmake)
 
+### EXTERNAL LIBRARIES ###
+include($ENV{CMAKE_ADDONS}/unittests_external_libraries.cmake)
 
 ### SOURCES ###
 add_subdirectory($ENV{SOURCE_DIR}/os os)

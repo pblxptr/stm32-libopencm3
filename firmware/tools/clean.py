@@ -53,7 +53,8 @@ def clean_sources():
 
 def invoke_total_clean():
   lib_path = os.environ['EXTERNAL_LIB_DIR']
-  shutil.rmtree(lib_path)
+  if os.path.exists(lib_path):
+    shutil.rmtree(lib_path)
 
 def main():
   parser = argparse.ArgumentParser()

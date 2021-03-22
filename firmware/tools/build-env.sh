@@ -6,6 +6,7 @@ export SOURCE_DIR="$REPO_ROOT/src"
 export TEST_DIR="$REPO_ROOT/test"
 export EXTERNAL_LIB_DIR="$REPO_ROOT/lib"
 export TOOLS_DIR="$REPO_ROOT/tools"
+export CMAKE_ADDONS="$REPO_ROOT/cmake"
 
 ### PREPARE BUILD DIR ###
 mkdir -p $BUILD_DIR
