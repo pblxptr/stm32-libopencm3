@@ -31,6 +31,8 @@ namespace {
         return;
       }
     }
+
+    timers.append(make_link(new_timer));
   }
 
   void dispatch_timer(Timer* timer)

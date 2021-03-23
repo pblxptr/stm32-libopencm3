@@ -10,3 +10,4 @@ CMakeFiles
 *.a
 *.ii
 *.s
+firmware/lib

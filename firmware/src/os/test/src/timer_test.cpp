@@ -42,30 +42,30 @@ TEST_F(TimerTest, WhenRequestingATimerThenItShouldBeFiredAfterItIsExpired)
   ASSERT_EQ(value_modified_by_callback, expected_value_modified_by_callback);
 }
 
-// TEST_F(TimerTest, WhenRequestingMultipleTimersThenTheyShouldBeFiredAccordinglyToTheirTimeout)
-// {
-//   //Arrange
-//   auto t1 = Timer{};
-//   const auto t1_timeout = std::chrono::milliseconds(1000);
-//   const int t1_expected_cb_value = 1000;
-//   auto t1_cb = []() { value_modified_by_callback = 1000; };
+TEST_F(TimerTest, WhenRequestingMultipleTimersThenTheyShouldBeFiredAccordinglyToTheirTimeout)
+{
+  //Arrange
+  auto t1 = Timer{};
+  const auto t1_timeout = std::chrono::milliseconds(1000);
+  const int t1_expected_cb_value = 1000;
+  const auto t1_cb = []() { value_modified_by_callback = 1000; };
 
-//   auto t2 = Timer{};
-//   const auto t2_timeout = std::chrono::milliseconds(2000);
-//   const int t2_expected_cb_value = 2000;
-//   auto t2_cb = []() { value_modified_by_callback = 2000; };
+  auto t2 = Timer{};
+  const auto t2_timeout = std::chrono::milliseconds(2000);
+  const int t2_expected_cb_value = 2000;
+  const auto t2_cb = []() { value_modified_by_callback = 2000; };
 
-//   //Act
-//   os::timer::request_timer(&t1, t1_timeout, t1_cb);
-//   os::timer::request_timer(&t2, t2_timeout, t2_cb);
+  //Act
+  os::timer::request_timer(&t1, t1_timeout, t1_cb);
+  os::timer::request_timer(&t2, t2_timeout, t2_cb);
 
-//   call_timers_notify_tick(t1_timeout.count());
-//   const int t1_cb_actual_value = value_modified_by_callback;
+  call_timers_notify_tick(t1_timeout.count());
+  const int t1_cb_actual_value = value_modified_by_callback;
 
-//   call_timers_notify_tick(t2_timeout.count());
-//   const int t2_cb_actual_value = value_modified_by_callback;
+  call_timers_notify_tick(t2_timeout.count());
+  const int t2_cb_actual_value = value_modified_by_callback;
 
-//   //Assert
-//   ASSERT_EQ(t1_cb_actual_value, t1_expected_cb_value);
-//   ASSERT_EQ(t2_cb_actual_value, t2_expected_cb_value);
-// }
+  //Assert
+  ASSERT_EQ(t1_cb_actual_value, t1_expected_cb_value);
+  ASSERT_EQ(t2_cb_actual_value, t2_expected_cb_value);
+}
