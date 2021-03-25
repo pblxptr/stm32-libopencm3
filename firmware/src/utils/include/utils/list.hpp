@@ -1,7 +1,10 @@
 #pragma once
 
-namespace utils::containers {
 #include <stdint.h>
+#include <type_traits>
+#include <iterator>
+
+namespace utils::containers {
 
 class List;
 class ListNode_t;
@@ -58,11 +61,13 @@ public:
 class ListIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
     using self_type = ListIterator;
     using iterator = self_type;
     using value_type = ListNode_t;
     using reference = ListNode_t&;
     using pointer = ListNode_t*;
+    using difference_type = std::ptrdiff_t;
 
   ListIterator()
     : elem_{nullptr} {}
@@ -126,10 +131,13 @@ public:
       return iterator(node);
     }
 
+    // prev - iter - next
+    // prev - node - iter - next
+
     iter->prev_->next_ = node;
-    iter->prev_ = node;
     node->prev_ = iter->prev_;
-    node->next_ = &*iter;
+    iter->prev_ = node;
+    node->next_ = it_to_ptr(iter);
 
     size_++;
 

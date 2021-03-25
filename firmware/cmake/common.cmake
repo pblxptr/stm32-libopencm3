@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_CPPCHECK "cppcheck")
+# set(CMAKE_CXX_CLANG_TIDY
+#     clang-tidy;
+#     -header-filter=.*\/$ENV{EXTERNAL_LIB_DIR}\/.*.h;
+#     -checks=*;)
+
 
 ### GENERAL PATHS ###
 set(BOARD_DIR $ENV{REPO_ROOT}/src/board/${BOARD})

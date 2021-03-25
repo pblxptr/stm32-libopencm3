@@ -26,21 +26,21 @@ struct TimerTest : public ::testing::Test
 };
 
 
-TEST_F(TimerTest, WhenRequestingATimerThenItShouldBeFiredAfterItIsExpired)
-{
-  //Arrange
-  auto timer = Timer{};
-  const int expected_value_modified_by_callback = 1000;
-  auto cb = []() { value_modified_by_callback = 1000; };
-  const auto timeout = std::chrono::milliseconds(1000);
+// TEST_F(TimerTest, WhenRequestingATimerThenItShouldBeFiredAfterItIsExpired)
+// {
+//   //Arrange
+//   auto timer = Timer{};
+//   const int expected_value_modified_by_callback = 1000;
+//   auto cb = []() { value_modified_by_callback = 1000; };
+//   const auto timeout = std::chrono::milliseconds(1000);
 
-  //Act
-  os::timer::request_timer(&timer, timeout, cb);
-  call_timers_notify_tick(timeout.count());
+//   //Act
+//   os::timer::request_timer(&timer, timeout, cb);
+//   call_timers_notify_tick(timeout.count());
 
-  //Assert
-  ASSERT_EQ(value_modified_by_callback, expected_value_modified_by_callback);
-}
+//   //Assert
+//   ASSERT_EQ(value_modified_by_callback, expected_value_modified_by_callback);
+// }
 
 TEST_F(TimerTest, WhenRequestingMultipleTimersThenTheyShouldBeFiredAccordinglyToTheirTimeout)
 {
@@ -56,8 +56,8 @@ TEST_F(TimerTest, WhenRequestingMultipleTimersThenTheyShouldBeFiredAccordinglyTo
   const auto t2_cb = []() { value_modified_by_callback = 2000; };
 
   //Act
-  os::timer::request_timer(&t1, t1_timeout, t1_cb);
   os::timer::request_timer(&t2, t2_timeout, t2_cb);
+  os::timer::request_timer(&t1, t1_timeout, t1_cb);
 
   call_timers_notify_tick(t1_timeout.count());
   const int t1_cb_actual_value = value_modified_by_callback;

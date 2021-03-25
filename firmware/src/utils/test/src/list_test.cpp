@@ -84,29 +84,35 @@ TEST_F(ListTests, WhenAppendElementToTheListThenBeginAndEndShouldPointToIt)
 
 TEST_F(ListTests, WhenInsertingItemThenItShouldReplaceThePositionOfIterator)
 {
-  //Arrange
-  auto e1 = Dummy{ 10, {} };
-  auto e2 = Dummy{ 20, {} };
+  //Arrange 
+  auto e1 = Dummy { 10, {} };
+  auto e2 = Dummy { 20, {} };
+  auto sut = List{};
 
   //Act
-  auto l = List{};
-  l.append(make_link_ptr(e1));
-
-  auto b = l.begin();
-
-  l.insert(b, make_link_ptr(e2));
-
-  b = l.begin();
-  
-  const auto e1_it = b;
-  const auto e2_it = ++b;
-  const Dummy* e1_cof = container_of(&*e1_it, Dummy, node);
-  const Dummy* e2_cof = container_of(&*e2_it, Dummy, node);
+  sut.append(make_link_ptr(e1));
+  auto it = sut.begin();
+  sut.insert(it, make_link_ptr(e2));
 
   //Assert
-  ASSERT_NE(e1_it, e2_it);
-  ASSERT_EQ(e1_cof->x, e2.x);
-  ASSERT_EQ(e2_cof->x, e1.x);
+  const auto it1 = sut.begin();
+  const auto it2 = ++sut.begin();
+
+  const Dummy* it1_elem = container_of(&*it1, Dummy, node);
+  const Dummy* it2_elem = container_of(&*it2, Dummy, node);
+
+  std::vector<uint32_t> elements{};
+  for(const auto& node : sut)
+  {
+    const Dummy* elem = container_of(&node, Dummy, node);
+
+    elements.push_back(elem->x);
+  }
+
+  ASSERT_EQ(elements[0], e2.x);
+  ASSERT_EQ(elements[1], e1.x);
+  ASSERT_EQ(it1_elem->x, e2.x);
+  ASSERT_EQ(it2_elem->x, e1.x);
 }
 
 TEST_F(ListTests, WhenInsertingElementAtLastValidPositionItTheLastElementShouldBeChanged)
@@ -138,17 +144,17 @@ TEST_F(ListTests, WhenErasingElementFromListThenItShouldDisappearFromListAndTheN
   auto e3 = Dummy{ 30, {} };
 
   //Act
-  auto l = List{};
-  l.append(make_link_ptr(e1));
-  l.append(make_link_ptr(e2));
-  l.append(make_link_ptr(e3));
+  auto sut = List{};
+  sut.append(make_link_ptr(e1));
+  sut.append(make_link_ptr(e2));
+  sut.append(make_link_ptr(e3));
 
-  const auto it = l.begin();
-  const auto nextIt = l.erase(it);
+  const auto it = sut.begin();
+  const auto nextIt = sut.erase(it);
 
   //Assert
-  ASSERT_EQ(l.size(), 2);
-  ASSERT_EQ(l.begin(), nextIt);
+  ASSERT_EQ(sut.size(), 2);
+  ASSERT_EQ(sut.begin(), nextIt);
 }
 
 TEST_F(ListTests, WhenErasingLastElementThenItShouldBeRemovedFromListAndEndIteratorShouldBeUpdated)
@@ -159,17 +165,17 @@ TEST_F(ListTests, WhenErasingLastElementThenItShouldBeRemovedFromListAndEndItera
   auto e3 = Dummy{ 30, {} };
 
   //Act
-  auto l = List{};
-  l.append(make_link_ptr(e1));
-  l.append(make_link_ptr(e2));
-  l.append(make_link_ptr(e3));
+  auto sut = List{};
+  sut.append(make_link_ptr(e1));
+  sut.append(make_link_ptr(e2));
+  sut.append(make_link_ptr(e3));
 
-  auto it = --(l.end());
+  auto it = --(sut.end());
 
-  l.erase(it);
+  sut.erase(it);
 
   //Assert
-  ASSERT_EQ(l.size(), 2);
+  ASSERT_EQ(sut.size(), 2);
 }
 
 TEST_F(ListTests, WhenInsertingElementToTheEndThenTheItratorsShouldPointCorrectly) //TODO: Dokonczyc implementacje
@@ -190,4 +196,31 @@ TEST_F(ListTests, WhenInsertingElementToTheEndThenTheItratorsShouldPointCorrectl
   l.insert(it, make_link_ptr(e3));
 }
 
+TEST_F(ListTests, WhenInsertingElemebtsInBetweenAndErasingThisElementListShouldBeUpdated)
+{
+    //Arrange
+  auto e1 = Dummy{ 10, {} };
+  auto e2 = Dummy{ 20, {} };
+  auto sut = List{};
+
+  //Act
+  sut.append(make_link_ptr(e1));
+  auto it = sut.begin();
+  sut.insert(it, make_link_ptr(e2));
+  it = sut.begin();
+  sut.erase(it);
+
+  //Act
+  std::vector<int> elements{};
+
+  for (const auto& x : sut)
+  {
+    const Dummy* dummy = container_of(&x, Dummy, node);
+
+    elements.push_back(dummy->x);
+  }
+
+  //Assert
+  ASSERT_EQ(elements.size(), 1);
+}
 

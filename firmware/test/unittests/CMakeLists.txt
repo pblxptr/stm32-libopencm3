@@ -5,8 +5,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittests_bin)
 
 set(CMAKE_CXX_FLAGS "-g -std=c++17")
 
-set(COMPILER_CXX_FLAGS "-fno-use-cxa-atexit -O3 -fno-exceptions -g -std=c++17")
-set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -Wall -Wextra -save-temps -pedantic-errors -fdump-tree-all ")
+set(COMPILER_CXX_FLAGS "-fno-use-cxa-atexit -O0 -fno-exceptions -g -std=c++17")
+set(COMPILER_FLAGS "-fdata-sections -ffunction-sections -Wall -Wextra -save-temps -pedantic-errors")
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

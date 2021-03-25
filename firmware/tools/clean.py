@@ -71,7 +71,7 @@ def main():
 
   totalclean = args.totalclean
 
-  if totalclean is not None:
+  if totalclean is True:
     invoke_total_clean()
 
 if __name__ == "__main__":

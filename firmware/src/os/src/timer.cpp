@@ -3,13 +3,14 @@
 
 #include <stdint.h>
 #include <functional>
+#include <iostream>
 
 using namespace os::timer;
 using namespace utils::containers;
 
 namespace {
   ticks_t ticks = 0; //1 tick -> 1 millisecond
-  List timers;
+  List timers {};
 
   void add_timer(os::timer::Timer* new_timer)
   {
@@ -20,19 +21,29 @@ namespace {
       return;
     }
 
-    for (auto iter = timers.begin(); iter != timers.end();  ++iter)
+    const auto iter = std::find_if(timers.begin(), timers.end(), [=](const auto& x)
     {
-      const Timer* timer = container_of(it_to_ptr(iter), Timer, node); 
+      const Timer* timer = container_of(&x, Timer, node);
+      
+      return new_timer->timeout <= timer->timeout;
+    });
 
-      if (new_timer->timeout <= timer->timeout)
-      {
-        timers.insert(iter, make_link(new_timer));
-
-        return;
-      }
+    if (iter != timers.end())
+    {
+      timers.insert(iter, make_link(new_timer));
+    }
+    else
+    {
+      timers.append(make_link(new_timer));
     }
 
-    timers.append(make_link(new_timer));
+    //TODO: Remove
+    for (const auto& t : timers)
+    {
+      const Timer* timer  = container_of(&t, Timer, node);
+
+      std::cout << timer->timeout << std::endl;
+    }
   }
 
   void dispatch_timer(Timer* timer)
@@ -48,7 +59,9 @@ namespace {
     for (auto& t : timers)
     {
       Timer* timer = container_of(&t, Timer, node);
+
       timer->timeout -= substract_ticks;
+    
     }
   }
 
@@ -59,21 +72,26 @@ namespace {
       return;
     }
 
-    for (auto iter = timers.begin(); iter != timers.end();  ++iter)
+    auto iter = std::find_if(timers.begin(), timers.end(), [=](const auto& x)
     {
-      Timer* timer = container_of(it_to_ptr(iter), Timer, node);
+      const Timer* timer = container_of(&x, Timer, node);
+      
+      return timer->timeout <= ticks;
+    });
 
-      if (timer->timeout <= ticks)
-      {
-        const ticks_t substract_ticks = timer->timeout;
-
-        dispatch_timer(timer);
-        timers.erase(iter);
-        update_timers(substract_ticks);
-
-        return;
-      }
+    if (iter == timers.end())
+    {
+      return;
     }
+
+    Timer* timer = container_of(it_to_ptr(iter), Timer, node);
+
+    const ticks_t substract_ticks = timer->timeout;
+
+    dispatch_timer(timer);
+    timers.erase(iter);
+
+    update_timers(substract_ticks);
   }
 
 }
