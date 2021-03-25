@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <functional>
-#include <iostream>
 
 using namespace os::timer;
 using namespace utils::containers;
@@ -35,14 +34,6 @@ namespace {
     else
     {
       timers.append(make_link(new_timer));
-    }
-
-    //TODO: Remove
-    for (const auto& t : timers)
-    {
-      const Timer* timer  = container_of(&t, Timer, node);
-
-      std::cout << timer->timeout << std::endl;
     }
   }
 
