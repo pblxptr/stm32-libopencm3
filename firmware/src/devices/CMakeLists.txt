@@ -8,5 +8,6 @@ target_include_directories(${DEVICES_BIN} PUBLIC include)
 
 target_link_libraries(${DEVICES_BIN}
   ${HAL_BIN}
+  ${OS_BIN}
   ${UTILS_BIN}
 )

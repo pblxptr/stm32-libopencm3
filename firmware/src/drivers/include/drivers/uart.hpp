@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <type_traits>
 #include <cstddef>
+#include <chrono>
+#include <os/timer.hpp>
 
 namespace drivers::uart
 {
@@ -59,5 +61,14 @@ namespace drivers::uart
     //TX -> events
     tx_completed_t tx_completed_cb;
     void* tx_event_ctx;
+
+    void set_rx_completed_callback(rx_completed_t cb);
+    void set_rx_end_callback(rx_end_t cb);
+    void set_tx_completed_callback(tx_completed_t cb);
+    void set_rx_event_context(void* ctx);
+    void set_tx_event_context(void* ctx);
+
+    size_t receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& milliseconds = {});
+    void send(uint8_t* buffer, const size_t nbytes);
   };
 }

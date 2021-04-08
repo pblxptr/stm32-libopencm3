@@ -21,7 +21,7 @@ alias clean="$REPO_ROOT/tools/clean.py"
 alias totalclean="$REPO_ROOT/tools/clean.py --totalclean"
 
 ### BUILD ALIASES ###
-alias buildapp="cd "$BUILD_DIR" && build --solution=app --board=black_pill --toolchain=arm --trace_level=TRACE_LVL_1"
+alias buildapp="cd "$BUILD_DIR" && build --solution=app --board=black_pill --toolchain=arm --trace_level=TRACE_LVL_3"
 alias run_ts="cd "$BUILD_DIR" && build --solution=unittests --board=linux --toolchain=x86_64 --trace_level=TRACE_LVL_3 && ./bin/Henhouse-UnitTests"
 
 shopt -s expand_aliases

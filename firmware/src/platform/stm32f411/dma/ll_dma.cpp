@@ -13,8 +13,6 @@ namespace {
 
     auto* func_ctx = dma->fwd_isr_ctx;
 
-    volatile const uint16_t number_of_data = dma_get_number_of_data(dma->dma, dma->stream);
-
     dma_flags_t flags{0};
 
     if (dma_get_interrupt_flag(dma->dma, dma->stream, DMA_TEIF))

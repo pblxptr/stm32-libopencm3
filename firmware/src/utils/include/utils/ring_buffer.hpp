@@ -85,6 +85,8 @@ public:
 
   void clear()
   {
+    head_ = 0;
+    tail_ = 0;
     std::fill(begin(), end(), '\0');
   }
 

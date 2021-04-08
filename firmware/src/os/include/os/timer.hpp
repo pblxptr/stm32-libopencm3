@@ -10,6 +10,7 @@ namespace os::timer
 {
   using timeout_cb_t = std::add_pointer<void()>::type;
   using ticks_t = uint32_t;
+  using delay_t = std::chrono::milliseconds;
 
   struct Timer
   {
@@ -18,8 +19,10 @@ namespace os::timer
     utils::containers::List node;
   };
 
+  template<class T>
+
   //Public
-  void request_timer(Timer*, const std::chrono::milliseconds&, timeout_cb_t);
-  void request_timer(Timer*, const std::chrono::seconds&, timeout_cb_t);
-  void request_timer(Timer*, const std::chrono::minutes&, timeout_cb_t);
+  delay_t to_delay(const T& time) { return std::chrono::duration_cast<std::chrono::milliseconds>(time); }
+  void request_timer(Timer*, const delay_t&, timeout_cb_t);
+  void wait(const delay_t&);
 }

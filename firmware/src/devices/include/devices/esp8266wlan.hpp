@@ -33,17 +33,18 @@ namespace devices::esp8266
     explicit Esp8266Wlan(UartDriver* uart);
 
     //Configuration methods
-    void reset();
+    bool reset();
     bool set_mode(const Mode&);
-    void test(); //TODO: Remove after driver is done.
-    void connect_wlan(const std::string_view uuid, const std::string_view password);
+    bool connect_wlan(const std::string_view uuid, const std::string_view password);
 
     void task();
 
     //Handles -> called from interrupts
     void handle_rx_end(const size_t);
+    void handle_tx_end();
     
   private:
-    bool execute_blocking_operation(const CwModeCommand&);
+    template<class T>
+    bool execute_blocking_operation(const T&);
   };
 }
