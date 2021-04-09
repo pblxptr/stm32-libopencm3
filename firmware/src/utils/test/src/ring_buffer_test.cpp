@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 #include <string_view>
 #include <algorithm>
-#include <iostream>
 
 
 using namespace utils::containers;

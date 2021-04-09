@@ -22,17 +22,17 @@ namespace {
   static constexpr std::chrono::milliseconds receive_timeout = std::chrono::milliseconds{ 500 };
 
    //Handle from ISR
-  static void handle_rx_end_wrapper(void* ctx, const size_t nbytes)
-  {
-    Esp8266Wlan* device = reinterpret_cast<Esp8266Wlan*>(ctx);
-    device->handle_rx_end(nbytes);
-  }
+  // static void handle_rx_end_wrapper(void* ctx, const size_t nbytes)
+  // {
+  //   Esp8266Wlan* device = reinterpret_cast<Esp8266Wlan*>(ctx);
+  //   device->handle_rx_end(nbytes);
+  // }
 
-  static void handle_tx_end_wrapper(void* ctx)
-  {
-    Esp8266Wlan* device = reinterpret_cast<Esp8266Wlan*>(ctx);
-    device->handle_tx_end();
-  }
+  // static void handle_tx_end_wrapper(void* ctx)
+  // {
+  //   Esp8266Wlan* device = reinterpret_cast<Esp8266Wlan*>(ctx);
+  //   device->handle_tx_end();
+  // }
 
   static auto find_in_rb(const RingBuffer& rb, std::string_view needle)
   {
@@ -57,7 +57,8 @@ static volatile size_t rx_size = 0;
 
 namespace devices::esp8266
 {
-  Esp8266Wlan::Esp8266Wlan(UartDriver* uart)
+  template<class T>
+  Esp8266Wlan<T>::Esp8266Wlan(IUartDriver<T>* uart)
     : uart_{uart}
     , rx_rb_{rx_buffer_, RX_BUFFER_SIZE}
     , tx_rb_{tx_buffer_, TX_BUFFER_SIZE}
@@ -72,7 +73,8 @@ namespace devices::esp8266
       std::fill_n(tx_buffer_, TX_BUFFER_SIZE, '\0');
     }
 
-  bool Esp8266Wlan::reset()
+  template<class T>
+  bool Esp8266Wlan<T>::reset()
   {
     trace(1, "[ESP8266] Esp8266Wlan::reset()\r\n");
     
@@ -81,7 +83,8 @@ namespace devices::esp8266
     return execute_blocking_operation(command);
   }
 
-  bool Esp8266Wlan::set_mode(const Mode& mode)
+  template<class T>
+  bool Esp8266Wlan<T>::set_mode(const Mode& mode)
   {
     trace(1, "[ESP8266] Esp8266Wlan::set_mode()\r\n");
     
@@ -90,7 +93,8 @@ namespace devices::esp8266
     return execute_blocking_operation(command);
   }
 
-  bool Esp8266Wlan::connect_wlan(const std::string_view uuid, const std::string_view password) 
+  template<class T>
+  bool Esp8266Wlan<T>::connect_wlan(const std::string_view uuid, const std::string_view password) 
   {
     trace(1, "[ESP8266] Esp8266Wlan::connect_wlan()\r\n");
 
@@ -100,7 +104,8 @@ namespace devices::esp8266
   }
 
   template<class T>
-  bool Esp8266Wlan::execute_blocking_operation(const T& command)
+  template<class TCommand>
+  bool Esp8266Wlan<T>::execute_blocking_operation(const TCommand& command)
   {
     //Serialize command
     tx_rb_.clear();
@@ -141,14 +146,16 @@ namespace devices::esp8266
     return false;
   }
   
-  void Esp8266Wlan::task()
+  template<class T>
+  void Esp8266Wlan<T>::task()
   {
     
   }
 
 
   //Handles
-  void Esp8266Wlan::handle_rx_end(const size_t nbytes)
+  template<class T>
+  void Esp8266Wlan<T>::handle_rx_end(const size_t nbytes)
   {
     const size_t start_idx = RX_BUFFER_SIZE - nbytes;
     const size_t bytes_count = RX_BUFFER_SIZE - nbytes;
@@ -160,7 +167,8 @@ namespace devices::esp8266
     }
   }
 
-  void Esp8266Wlan::handle_tx_end()
+  template<class T>
+  void Esp8266Wlan<T>::handle_tx_end()
   {
 
   }

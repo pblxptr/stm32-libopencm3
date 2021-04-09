@@ -9,4 +9,9 @@ include_directories(${GMOCK_INCLUDE})
 
 add_library(${CMAKE_PROJECT_NAME}-drivers-tests ${SOURCES})
 
-target_link_libraries(${CMAKE_PROJECT_NAME}-drivers-tests pthread)
+target_include_directories(${CMAKE_PROJECT_NAME}-drivers-tests PUBLIC mocks)
+
+target_link_libraries(${CMAKE_PROJECT_NAME}-drivers-tests 
+  pthread
+  ${DRIVERS_BIN}
+)
