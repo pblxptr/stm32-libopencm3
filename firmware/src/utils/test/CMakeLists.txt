@@ -5,10 +5,13 @@ set(SOURCES
   src/ring_buffer_test.cpp
 )
 
-add_library(${CMAKE_PROJECT_NAME}-utils-tests ${SOURCES})
+SET(PROJECT_NAME ${CMAKE_PROJECT_NAME}-utils-tests)
 
-target_include_directories(${CMAKE_PROJECT_NAME}-utils-tests PRIVATE ../include)
-target_include_directories(${CMAKE_PROJECT_NAME}-utils-tests PRIVATE ${GTEST_INCLUDE})
-target_include_directories(${CMAKE_PROJECT_NAME}-utils-tests PRIVATE ${GMOCK_INCLUDE})
+add_library(${PROJECT_NAME} ${SOURCES})
+add_dependencies(${PROJECT_NAME} googletest)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ../include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${GTEST_INCLUDE})
+target_include_directories(${PROJECT_NAME} PRIVATE ${GMOCK_INCLUDE})
 
 target_link_libraries(${CMAKE_PROJECT_NAME}-utils-tests ${HAL_BIN})

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <chrono>
 #include <os/timer.hpp>
+#include <gsl/span>
 
 namespace drivers::uart
 {
@@ -46,7 +47,45 @@ namespace drivers::uart
 
   enum class UartState { IDLE, ACTIVE };
 
-  struct UartDriver
+  template<class Derived>
+  class IUartDriver
+  {
+    IUartDriver() {}
+    friend Derived;
+
+    Derived& impl() { return static_cast<Derived&>(*this); }
+  public:
+    void set_rx_completed_callback(rx_completed_t cb)
+    {
+      impl().set_rx_completed_callback(cb);
+    }
+    void set_rx_end_callback(rx_end_t cb)
+    {
+      impl().set_rx_end_callback(cb);
+    }
+    void set_tx_completed_callback(tx_completed_t cb)
+    {
+      impl().set_tx_completed_callback(cb);
+    }
+    void set_rx_event_context(void* ctx)
+    {
+      impl().set_rx_event_context(ctx);
+    }
+    void set_tx_event_context(void* ctx)
+    {
+      impl().set_tx_event_context(ctx);
+    }
+    size_t receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& timeout = {})
+    {
+      return impl().receive(buffer, nbytes, timeout);
+    }
+    void send(uint8_t* buffer, size_t nbytes)
+    {
+      impl().send(buffer, nbytes);
+    }
+  };
+
+  struct UartDriver : IUartDriver<UartDriver>
   {
     uint32_t uart_id;
     //RX
@@ -68,7 +107,7 @@ namespace drivers::uart
     void set_rx_event_context(void* ctx);
     void set_tx_event_context(void* ctx);
 
-    size_t receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& milliseconds = {});
+    size_t receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& timeout = {});
     void send(uint8_t* buffer, const size_t nbytes);
   };
 }

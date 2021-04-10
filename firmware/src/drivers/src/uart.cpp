@@ -1,5 +1,6 @@
 #include <drivers/uart.hpp>
 #include <hal/uart.hpp>
+#include <gsl/span>
 
 namespace drivers::uart {
 void UartDriver::set_rx_completed_callback(rx_completed_t cb) 

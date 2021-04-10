@@ -17,6 +17,7 @@ public:
     using difference_type = std::ptrdiff_t;
     using pointer = uint8_t*;
     using reference = uint8_t&;
+    using iterator_category = std::bidirectional_iterator_tag;
 
     explicit Iterator(pointer ptr) : ptr_{ptr}  {}
 

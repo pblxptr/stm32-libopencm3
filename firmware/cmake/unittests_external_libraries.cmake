@@ -22,3 +22,21 @@ ExternalProject_Add(googletest
 )
 include_directories(${GTEST_INCLUDE})
 include_directories(${GMOCK_INLCUDE})
+
+### GSL ###
+set(GSL_PATH $ENV{EXTERNAL_LIB_DIR}/gsl)
+set(GSL_INCLUDE ${GSL_PATH}/include)
+
+ExternalProject_Add(gsl
+  GIT_REPOSITORY    https://github.com/microsoft/GSL
+  GIT_TAG           main
+  SOURCE_DIR        $ENV{EXTERNAL_LIB_DIR}/gsl
+  BUILD_IN_SOURCE   true
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ${CMAKE_COMMAND} -E echo "Starting $<CONFIG> build"
+  COMMAND           ${CMAKE_COMMAND} $ENV{EXTERNAL_LIB_DIR}/gsl && make
+  COMMAND           ${CMAKE_COMMAND} -E echo "$<CONFIG> build complete"
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      "ctest"
+)
+include_directories(${GSL_INCLUDE})
