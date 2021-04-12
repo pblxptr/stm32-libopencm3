@@ -20,7 +20,7 @@ namespace drivers::uart
 
   using buffer_ptr_t = uint8_t*;
   using rx_completed_t = std::add_pointer_t<void(void*)>;
-  using rx_end_t = std::add_pointer_t<void(void*, const size_t)>;
+  using rx_end_t = std::add_pointer_t<void(void*, const size_t)>; //TODO: Can we get rid of void*?
 
   using tx_completed_t = std::add_pointer_t<void(void*)>;
 
@@ -75,13 +75,13 @@ namespace drivers::uart
     {
       impl().set_tx_event_context(ctx);
     }
-    size_t receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& timeout = {})
+    size_t receive(gsl::span<uint8_t> buffer, const std::chrono::milliseconds& timeout = {})
     {
-      return impl().receive(buffer, nbytes, timeout);
+      return impl().receive(buffer, timeout);
     }
-    void send(uint8_t* buffer, size_t nbytes)
+    void send(gsl::span<uint8_t> buffer)
     {
-      impl().send(buffer, nbytes);
+      impl().send(buffer);
     }
   };
 
@@ -107,7 +107,7 @@ namespace drivers::uart
     void set_rx_event_context(void* ctx);
     void set_tx_event_context(void* ctx);
 
-    size_t receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& timeout = {});
-    void send(uint8_t* buffer, const size_t nbytes);
+    size_t receive(gsl::span<uint8_t> buffer, const std::chrono::milliseconds& timeout = {});
+    void send(gsl::span<uint8_t> buffer);
   };
 }

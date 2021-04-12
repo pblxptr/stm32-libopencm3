@@ -26,7 +26,7 @@ struct Esp8266WlanTest : public Test
     EXPECT_CALL(uart_, set_tx_event_context(An<void*>()));
     EXPECT_CALL(uart_, set_tx_completed_callback(An<tx_completed_t>()));
 
-    ON_CALL(uart_, receive(An<uint8_t*>(), An<size_t>(), An<const std::chrono::milliseconds&>()))
+    ON_CALL(uart_, receive(An<gsl::span<uint8_t>>(), An<const std::chrono::milliseconds&>()))
       .WillByDefault(Return(0));
 
     sut_ = std::make_unique<Esp8266Wlan<GMockUartDriver>>(&uart_);

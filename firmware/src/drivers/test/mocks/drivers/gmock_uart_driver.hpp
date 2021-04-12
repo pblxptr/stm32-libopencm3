@@ -11,7 +11,7 @@ namespace drivers::uart
     MOCK_METHOD(void, set_tx_completed_callback, (tx_completed_t), ());
     MOCK_METHOD(void, set_rx_event_context, (void*), ());
     MOCK_METHOD(void, set_tx_event_context, (void*), ());
-    MOCK_METHOD(size_t, receive, (uint8_t*, const size_t, const std::chrono::milliseconds&), ());
-    MOCK_METHOD(void, send, (uint8_t*, size_t), ());
+    MOCK_METHOD(size_t, receive, (gsl::span<uint8_t>, const std::chrono::milliseconds&), ());
+    MOCK_METHOD(void, send, (gsl::span<uint8_t>), ());
   };
 }

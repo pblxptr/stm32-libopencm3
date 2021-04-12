@@ -6,6 +6,7 @@
 #include <utils/console_print.hpp>
 #include <cstring>
 #include <chrono>
+#include <gsl/span>
 
 using namespace drivers::uart;
 using namespace devices::esp8266;
@@ -113,8 +114,8 @@ namespace devices::esp8266
     tx_rb_.write(operation_terminator.data(), operation_terminator.size());
 
     //Send command
-    uart_->send(tx_buffer_, tx_rb_.capacity());
-    uart_->receive(rx_buffer_, RX_BUFFER_SIZE, receive_timeout);
+    uart_->send(gsl::span<uint8_t>{tx_buffer_, tx_rb_.capacity()});
+    uart_->receive(gsl::span<uint8_t>{rx_buffer_, RX_BUFFER_SIZE}, receive_timeout);
 
     trace(3, "[ESP8266] Response ready.\r\n");
 

@@ -28,17 +28,17 @@ void UartDriver::set_tx_event_context(void* ctx)
   rx_event_ctx = ctx;
 }
 
-size_t UartDriver::receive(uint8_t* buffer, const size_t nbytes, const std::chrono::milliseconds& timeout)
+size_t UartDriver::receive(gsl::span<uint8_t> buffer, const std::chrono::milliseconds& timeout)
 {
-  hal::uart::receive(this, buffer, nbytes);
+  hal::uart::receive(this, buffer.data(), buffer.size());
   os::timer::wait(timeout);
 
   return 0; //TODO: Return valid number of bytes
 }
 
-void UartDriver::send(uint8_t* buffer, const size_t nbytes)
+void UartDriver::send(gsl::span<uint8_t> buffer)
 {
-  hal::uart::send(this, buffer, nbytes);
+  hal::uart::send(this, buffer.data(), buffer.size());
 }
 
 }
