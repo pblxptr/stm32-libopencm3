@@ -3,6 +3,7 @@ set(SOURCES
 )
 
 add_library(${DRIVERS_BIN} STATIC ${SOURCES})
+add_dependencies(${DRIVERS_BIN} gsl)
 
 target_include_directories(${DRIVERS_BIN} PUBLIC include)
 
