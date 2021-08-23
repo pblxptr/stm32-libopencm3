@@ -3,12 +3,13 @@
 
 #include <stdint.h>
 #include <functional>
+#include <atomic>
 
 using namespace os::timer;
 using namespace utils::containers;
 
 namespace {
-  ticks_t ticks = 0; //1 tick -> 1 millisecond
+  std::atomic<ticks_t> ticks = 0; //1 tick -> 1 millisecond
   List timers {};
 
   void add_timer(os::timer::Timer* new_timer)
@@ -102,24 +103,24 @@ namespace os::timer
   }
 
   // PUBLIC
-  void request_timer(Timer* timer, const std::chrono::milliseconds& duration, timeout_cb_t cb)
+  void request_timer(Timer* timer, const delay_t& delay, timeout_cb_t cb)
   {
     if (timer == nullptr)
       return;
     
     timer->cb = cb;
-    timer->timeout = ticks + duration.count();
+    timer->timeout = ticks + delay.count();
 
     add_timer(timer);
   }
 
-  void request_timer(Timer* timer, const std::chrono::seconds& duration, timeout_cb_t cb)
+  void wait(const delay_t& delay)
   {
-    request_timer(timer, std::chrono::duration_cast<std::chrono::milliseconds>(duration), cb);
-  }
+    const auto delay_ticks = ticks + delay.count();
+    ticks_t current_ticks;
 
-  void request_timer(Timer* timer, const std::chrono::minutes& duration, timeout_cb_t cb)
-  {
-    request_timer(timer, std::chrono::duration_cast<std::chrono::milliseconds>(duration), cb);
+    do {
+      current_ticks = ticks;
+    } while(current_ticks < delay_ticks);
   }
 }

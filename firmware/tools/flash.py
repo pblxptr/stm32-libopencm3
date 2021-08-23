@@ -4,8 +4,9 @@ import argparse
 import subprocess 
 import shutil
 import os
+import sys
 
-path_to_jlink_scripts_dir = "{0}/jlink".format(os.path.dirname(__file__))
+path_to_jlink_scripts_dir = "{0}/jlink".format(os.environ['TOOLS_DIR'])
 
 jlink_flash_command_filename = "flashCommand.jlink"
 
@@ -34,6 +35,8 @@ def flash(binary_path, target):
   subprocess.call(flash_command, shell=True)
 
 def main():
+  print 'Argument List:', str(sys.argv)
+
   parser = argparse.ArgumentParser()
   parser.add_argument("binary_path", help="Path to the hex file that contains binary code.")
   parser.add_argument("target", help="Flashing target e.g. STM32F103C8T6.")

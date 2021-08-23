@@ -9,6 +9,7 @@
 #include <platform/config.hpp>
 #include <utils/console_print.hpp>
 #include <devices/esp8266wlan.hpp>
+#include <os/internal/timer_internal.hpp>
 
 drivers::gpio::GpioDriver* blue_led_driver{nullptr};
 drivers::gpio::GpioDriver* red_led1_driver{nullptr};
@@ -43,13 +44,7 @@ using namespace devices::esp8266;
 extern "C" {
   void sys_tick_handler(void)
   {
-    static volatile uint32_t idx = 0;
-
-    if (++idx == 1000 * 10)
-    {
-      // hal::gpio::toggle(red_led3_driver);
-      idx = 0;
-    }
+    os::timer::notify_tick();
   }
 }
 
@@ -187,8 +182,9 @@ int main()
 
   auto esp8266_wlan = Esp8266Wlan{esp8266_uart_driver};
   
-  // esp8266_wlan.reset();
+  esp8266_wlan.reset();
   esp8266_wlan.set_mode(devices::esp8266::Mode::Client);
+  esp8266_wlan.connect_wlan("UPC9090595", "sp7ahfb4vtHC");
 
   while(1)
   {

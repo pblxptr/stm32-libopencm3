@@ -2,7 +2,7 @@ PICOM -> picocom -b 115200 /dev/ttyUSB0 -vv
 
 Create virtual serial port -> socat PTY,link=./virtual-tty,raw,echo=0,b9600 -
 
-
+echo -e "AT+RST\r\n" > /dev/ttyUSB0 -> reset device
 echo -e "AT+GMR\r\n" > /dev/ttyUSB0 -> firwmare version
 echo -e "AT+CWLAP\r\n" > /dev/ttyUSB0  -> access points list
 echo -e "AT+CWMODE=3\r\n" > /dev/ttyUSB0  -> set AP + Station mode

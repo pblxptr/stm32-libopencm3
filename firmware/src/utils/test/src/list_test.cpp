@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <utils/list.hpp>
-#include <iostream>
 
 using namespace utils::containers;
 

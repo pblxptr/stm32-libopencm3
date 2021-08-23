@@ -15,14 +15,13 @@ namespace devices::esp8266
   constexpr size_t RX_BUFFER_SIZE = 128;
   constexpr size_t TX_BUFFER_SIZE = 128;
 
-  enum class Mode : uint16_t{ Client, AccessPoint };
-
-  class CwModeCommand;
-
+  enum class Mode : uint16_t { Client, AccessPoint };
+  
+  template<class TUart>
   class Esp8266Wlan
   {
   public: //TODO: Temporary
-    UartDriver* uart_;
+    IUartDriver<TUart>* uart_;
     //RX
     uint8_t rx_buffer_[RX_BUFFER_SIZE];
     RingBuffer rx_rb_;
@@ -30,20 +29,21 @@ namespace devices::esp8266
     uint8_t tx_buffer_[TX_BUFFER_SIZE];
     RingBuffer tx_rb_;
   public:
-    explicit Esp8266Wlan(UartDriver* uart);
+    explicit Esp8266Wlan(IUartDriver<TUart>* uart);
 
     //Configuration methods
-    void reset();
+    bool reset();
     bool set_mode(const Mode&);
-    void test(); //TODO: Remove after driver is done.
-    void connect_wlan(const std::string_view uuid, const std::string_view password);
+    bool connect_wlan(const std::string_view uuid, const std::string_view password);
 
     void task();
 
     //Handles -> called from interrupts
     void handle_rx_end(const size_t);
+    void handle_tx_end();
     
   private:
-    bool execute_blocking_operation(const CwModeCommand&);
+    template<class T>
+    bool execute_blocking_operation(const T&);
   };
 }

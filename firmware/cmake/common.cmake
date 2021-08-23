@@ -1,23 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_CPPCHECK "cppcheck")
-# set(CMAKE_CXX_CLANG_TIDY
-#     clang-tidy;
-#     -header-filter=.*\/$ENV{EXTERNAL_LIB_DIR}\/.*.h;
-#     -checks=*;)
-
-
-### GENERAL PATHS ###
-set(BOARD_DIR $ENV{REPO_ROOT}/src/board/${BOARD})
 
 ### CMAKE MODULES ###
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 
+### PORT CONFIGURATIOM ### 
+include($ENV{SOURCE_DIR}/board/${BOARD}/board.cmake)
+
 ### TOOLCHAIN ###
 include($ENV{TOOLS_DIR}/toolchains/${TOOLCHAIN}_toolchain.cmake)
-
-### PORT CONFIGURATIOM ### 
-include(${BOARD_DIR}/board.cmake)
 
 ### COMPILE DEFINITIONS ###
 add_compile_definitions(TRACE_LEVEL=${TRACE_LEVEL})
